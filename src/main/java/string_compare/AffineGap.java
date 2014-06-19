@@ -1,3 +1,5 @@
+package alignmentStudy;
+
 //functiosn to compare trancated strings
 //taking two strigs to compare and penalty for opening the gap, and extending it
 //tends to value ends of the strings more than the middle

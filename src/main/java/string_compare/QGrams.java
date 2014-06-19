@@ -1,3 +1,5 @@
+package alignmentStudy;
+
 public class QGrams	{
 	
 	private String s1;

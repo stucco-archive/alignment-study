@@ -1,3 +1,5 @@
+package alignmentStudy;
+
 import java.util.Iterator;
 
 import org.json.simple.JSONObject;

@@ -1,3 +1,5 @@
+package alignmentStudy;
+
 //function return distance = 1.0 if absolute match, else 0 <= distance < 1.0
 public class JaroWinkler {
 	

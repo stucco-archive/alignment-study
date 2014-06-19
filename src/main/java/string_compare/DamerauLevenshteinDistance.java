@@ -1,3 +1,5 @@
+package alignmentStudy;
+
 public class DamerauLevenshteinDistance	{
 	
 	private String s1;

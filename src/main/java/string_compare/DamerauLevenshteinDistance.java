@@ -9,7 +9,7 @@ public class DamerauLevenshteinDistance	{
 	private int [][] table;
 	
 	//initializing private variables; calling distance computing functions
-	int damerau_levenshtein_distance (String str1, String str2)	{
+	int damerauLevenshteinDistance (String str1, String str2)	{
 		
 		if (str1.equals(str2))	return 0;	//checking if strings are the same
 		if ((length1 = str1.length()) == 0)	return str2.length();
@@ -18,13 +18,13 @@ public class DamerauLevenshteinDistance	{
 		s1 = new String (str1);
 		s2 = new String (str2);
 
-		set_table();
+		setTable();
 		
-		return compute_distance();
+		return computeDistance();
 	}	
 	
 	//enumirating the positions in the table
-	void set_table ()	{
+	void setTable ()	{
 	
 		table = new int[length1+1][length2+1];
 		
@@ -33,7 +33,7 @@ public class DamerauLevenshteinDistance	{
 	}
 	
 	//computing and returning Damerau-Levenshtein distance 
-	int compute_distance ()	{
+	int computeDistance ()	{
 		
 		int edit = 0;
 		
@@ -42,7 +42,7 @@ public class DamerauLevenshteinDistance	{
 				//addition & delition
 				if (s1.charAt(i) == s2.charAt(j))	edit = 0;
 				else	edit = 1;
-				table [i+1][j+1] = find_min(table[i+1][j] + 1, table[i][j+1] + 1, table [i][j] + edit);
+				table [i+1][j+1] = findMin(table[i+1][j] + 1, table[i][j+1] + 1, table [i][j] + edit);
 				if (i == 0 || j == 0)	continue;
 				//transposition
 				if (s1.charAt(i) == s2.charAt(j-1) && s1.charAt(i-1) == s2.charAt(j))
@@ -54,7 +54,7 @@ public class DamerauLevenshteinDistance	{
 	}
 	
 	//finding a min between three values
-	int find_min (int a, int b, int c)	{
+	int findMin (int a, int b, int c)	{
 		
 		int temp = Math.min(a,b);
 		return Math.min(temp, c);

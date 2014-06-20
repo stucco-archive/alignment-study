@@ -1,6 +1,5 @@
 package alignmentStudy;
-
-//function is aligning two strings and retern similarity score based on alignment
+//function is aligning two strings and return similarity score based on local alignment
 //it is an extension of edit distance and affine gap distance. 
 //mismatches in the middle are the most important
 //will identify "Jogh Brown" and "John B" as the same
@@ -121,5 +120,15 @@ public class SmithWaterman {
 	
 		System.out.println(s1Aligned);
 		System.out.println(s2Aligned);
+	}
+
+	void printMatrix ()	{
+
+		for (int i = 0; i < length1; i++)	{
+			for (int j = 0; j < length2; j++)	{
+				System.out.print(H[i][j] + " ");
+			}
+			System.out.println();
+		}
 	}
 }

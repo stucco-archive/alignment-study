@@ -33,15 +33,34 @@ extends TestCase
 	 */
 	public void testOne()
 	{
-		//assertTrue(True);
+		DamerauLevenshteinDistance test = new DamerauLevenshteinDistance();
+		assertEquals(1, test.damerauLevenshteinDistance("tuesday", "teusday"));
 	}
-
+	
 	/**
 	 * Test stub
 	 */
 	public void testTwo()
 	{
-		//assertTrue(True);
+		DamerauLevenshteinDistance test = new DamerauLevenshteinDistance();
+		assertEquals(2, test.damerauLevenshteinDistance("tuesday", "thursday"));
+	}
+	
+	/**
+	 * Test stub
+	 */
+	public void testThree()
+	{
+		DamerauLevenshteinDistance test = new DamerauLevenshteinDistance();
+		assertEquals(8, test.damerauLevenshteinDistance("tuesday", "something"));
 	}
 
+	/**
+	 * Test stub
+	 */
+	public void testEqualStrings()
+	{	
+		DamerauLevenshteinDistance test = new DamerauLevenshteinDistance();
+		assertEquals(0, test.damerauLevenshteinDistance("tuesday", "tuesday"));
+	}
 }

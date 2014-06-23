@@ -1,5 +1,6 @@
 package alignmentStudy;
-//function is aligning two strings and return similarity score based on local alignment
+
+//function is aligning two strings and retern similarity score based on local alignment
 //it is an extension of edit distance and affine gap distance. 
 //mismatches in the middle are the most important
 //will identify "Jogh Brown" and "John B" as the same
@@ -11,16 +12,16 @@ public class SmithWaterman {
         private int[][] H;	//matrix for the best score calculation
         private int length1;	//lengths of the strings
         private int length2;
-        private int similarity_score;
+        private int similarityScore;
 	private int maxI; 	//i index of the largest score in the metrix
 	private int maxJ;	//j index of te largest score int he metrix
 	
-	int smith_waterman_score (String str1, String str2)	{
+	int smithWatermanScore (String str1, String str2)	{
 		
-		if (str1.equals(str2))  return str1.length() * 2;       //checking if strings are the     same           
-		if ((length1 = str1.length()) == 0)     return 0;
-		if ((length2 = str2.length()) == 0)     return 0;
+		if (str1.equals(str2))	 return 0;       //checking if strings are the     same           
 		
+		length1 = str1.length();
+		length2 = str2.length();
 		s1 = new String (str1);
 	        s2 = new String (str2);
 		s1Aligned = new String();
@@ -31,16 +32,16 @@ public class SmithWaterman {
 		maxI = 0;
 		maxJ = 0;
 
-		matrix_initialization();
-		score_calculation();
+		matrixInitialization();
+		scoreCalculation();
 		traceback();
-		set_similarity_score();
-		print_alignment();
+		setSimilarityScore();
+		printAlignment();
 
-		return similarity_score;
+		return similarityScore;
 	}
 	//firts row and column must be initialized to 0
-	void matrix_initialization()	{
+	void matrixInitialization()	{
 
 		for (int i = 0; i <= length1; i++)
 			H[i][0] = 0;
@@ -48,7 +49,7 @@ public class SmithWaterman {
 			H[0][i] = 0;
 	}
 	//filing up H matrix
-	void score_calculation()	{
+	void scoreCalculation()	{
 		
 		for (int i = 1; i <= length1; i++)	{
 			for (int j = 1; j <= length2; j++)	{	
@@ -77,9 +78,9 @@ public class SmithWaterman {
 	}
 	
 	//similarity score is the bigest score in H matrix
-	void set_similarity_score()	{
+	void setSimilarityScore()	{
 
-		similarity_score = H[maxI][maxJ];
+		similarityScore = H[maxI][maxJ];
 	}
 	
 	//traceback to compose an alignment strings
@@ -116,7 +117,7 @@ public class SmithWaterman {
 		}	
 	}
 	
-	void print_alignment ()	{
+	void printAlignment ()	{
 	
 		System.out.println(s1Aligned);
 		System.out.println(s2Aligned);
@@ -130,5 +131,15 @@ public class SmithWaterman {
 			}
 			System.out.println();
 		}
+	}
+
+	String getAlignedStrOne ()	{
+		
+		return s1Aligned;
+	}
+
+	String getAlignedStrTwo ()	{
+		
+		return s2Aligned;
 	}
 }

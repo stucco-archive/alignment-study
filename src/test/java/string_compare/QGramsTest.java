@@ -33,7 +33,8 @@ extends TestCase
 	 */
 	public void testOne()
 	{
-		//assertTrue(True);
+		QGrams qg = new QGrams();
+		assertEquals(0.0, qg.qGramsDistance("today", "today", 2));
 	}
 
 	/**
@@ -41,7 +42,26 @@ extends TestCase
 	 */
 	public void testTwo()
 	{
-		//assertTrue(True);
+		QGrams qg = new QGrams();
+		assertEquals(1.0, qg.qGramsDistance("today", "month", 2));
+	}
+	
+	/**
+	 * Test stub
+	 */
+	public void testThree()
+	{
+		QGrams qg = new QGrams();
+		assertEquals(0.8461538461538461, qg.qGramsDistance("today", "tomorrow", 2));
+	}
+
+	/**
+	 * Test stub
+	 */
+	public void testFour()
+	{
+		QGrams qg = new QGrams();
+		assertEquals(0.75, qg.qGramsDistance("tuesday", "monday", 2));
 	}
 
 }

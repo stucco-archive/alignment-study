@@ -21,8 +21,9 @@ public class AffineGap {
 	public double affineGapDistance (String str1, String str2, double openPenalty, double extendPenalty)	{
 		
 		if (str1.equals(str2))  return 0.0;       //checking if strings are the same
-		if ((length1 = str1.length()) == 0)     return 1.0;
-		if ((length2 = str2.length()) == 0)     return 1.0;
+		
+		length1 = str1.length();
+		length2 = str2.length();
  		
 		s1 = new String (str1);
              	s2 = new String (str2);
@@ -57,23 +58,23 @@ public class AffineGap {
 		D[0][0] = 0.0;
 	}
 	
-	//caltulating gap penalty according to the arguments
-	double gapPenalty(int gapLength)	{
-		
-		return v + gapLength * u;
-	}	
-
 	void allignmentCalculation ()	{
 
 		for (int i = 1; i <= length1; i++)	{
 			for (int j = 1; j <= length2; j++)	{
 				P[i][j] = Math.min(D[i-1][j] + gapPenalty(1), P[i-1][j] + u);
 				Q[i][j] = Math.min(D[i][j-1] + gapPenalty(1), Q[i][j-1] + u);
-				D[i][j] = Math.min(Math.min(D[i-1][j-1] + costFunction(i, j), P[i][j]), Q[i][j]);
+				D[i][j] = Math.min(Math.min(D[i-1][j-1] + costFunction(i, j), Q[i][j]), P[i][j]);
 			}
 		}
 		
 	}
+
+	//caltulating gap penalty according to the arguments
+	double gapPenalty(int gapLength)	{
+		
+		return v + gapLength * u;
+	}	
 
 	//returns 0.0 cost if chars are the same, 1.0 otherwise 
 	double costFunction(int i, int j)	{
@@ -97,17 +98,16 @@ public class AffineGap {
 				j--;
 				continue;
 			}
-		
-			if (j > 0 &&  D[i][j] == Q[i][j])	{
-				s1Aligned = "-" + s1Aligned;
-				s2Aligned = s2.charAt(j-1) + s2Aligned;
-				j--;
-			}	
 			if (i > 0 && D[i][j] == P[i][j]) 	{
 				s1Aligned = s1.charAt(i-1) + s1Aligned;
 				s2Aligned = "-" + s2Aligned;
 				i--;
 			}
+			if (j > 0 &&  D[i][j] == Q[i][j])	{
+				s1Aligned = "-" + s1Aligned;
+				s2Aligned = s2.charAt(j-1) + s2Aligned;
+				j--;
+			}	
 			if (j > 0 && i == 0)	{
 				s1Aligned = "-" + s1Aligned;
 				s2Aligned = s2.charAt(j-1) + s2Aligned;
@@ -147,4 +147,14 @@ public class AffineGap {
 		System.out.println(s1Aligned);
 		System.out.println(s2Aligned);
 	}
+
+	String getAlignedStrOne()      {
+
+              return s1Aligned;
+      	}
+ 
+      	String getAlignedStrTwo()      {
+
+              return s2Aligned;
+      	}
 }

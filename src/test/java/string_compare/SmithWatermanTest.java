@@ -19,7 +19,6 @@ extends TestCase
 	{
 		super( testName );
 	}
-
 	/**
 	 * @return the suite of tests being tested
 	 */
@@ -33,7 +32,8 @@ extends TestCase
 	 */
 	public void testOne()
 	{
-		//assertTrue(True);
+		SmithWaterman sw = new SmithWaterman();
+		assertEquals(0, sw.smithWatermanScore("John Smith", "John Smith"));
 	}
 
 	/**
@@ -41,7 +41,18 @@ extends TestCase
 	 */
 	public void testTwo()
 	{
-		//assertTrue(True);
+		SmithWaterman sw = new SmithWaterman();
+		assertEquals(30, sw.smithWatermanScore("Prof. John R. Smith, University of Calgory", "John R. Smith, Prof."));
+		assertEquals("John R. Smith, ", sw.getAlignedStrOne());
+		assertEquals("John R. Smith, ", sw.getAlignedStrTwo());
 	}
 
+	/**
+	 * Test stub
+	 */
+	public void testThree()
+	{
+		SmithWaterman sw = new SmithWaterman();
+		assertEquals(0, sw.smithWatermanScore("month", "april"));
+	}
 }

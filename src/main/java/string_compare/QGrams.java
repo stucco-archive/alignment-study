@@ -13,7 +13,7 @@ public class QGrams	{
 	
 	//functions to initialize private variables & call distance computing functions
 	// returning distance uaing Jaccord method Normalization method, where 0 means full overla and 1 is no overlap 
-	double q_grams_distance ( String str1, String str2, int qNumber)	{
+	double qGramsDistance ( String str1, String str2, int qNumber)	{
 		
 		if (str1.equals(str2))  return 0.0;       //checking if strings are the same
                 if ((length1 = str1.length()) == 0)     return 1.0; 

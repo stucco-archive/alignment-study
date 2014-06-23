@@ -33,7 +33,8 @@ extends TestCase
 	 */
 	public void testOne()
 	{
-		//assertTrue(True);
+		AffineGap ag = new AffineGap();
+		assertEquals(0.0, ag.affineGapDistance("month", "month", 1.0, 0.7));
 	}
 
 	/**
@@ -41,7 +42,18 @@ extends TestCase
 	 */
 	public void testTwo()
 	{
-		//assertTrue(True);
+		AffineGap ag = new AffineGap();
+		assertEquals(5.0, ag.affineGapDistance("month", "april", 1.0, 0.7));
 	}
-
+	
+	/**
+	 * Test stub
+	 */
+	public void testThree()
+	{
+		AffineGap ag = new AffineGap();
+		assertEquals( 10.299999999999997, ag.affineGapDistance("John R. Smith", "Jonathan Richard Smith", 1.0, 0.7));
+		assertEquals("Jo----hn R--.--- Smith", ag.getAlignedStrOne());
+		assertEquals("Jonathan Richard Smith", ag.getAlignedStrTwo());
+	}
 }

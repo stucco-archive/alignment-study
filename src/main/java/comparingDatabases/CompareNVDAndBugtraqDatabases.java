@@ -152,7 +152,7 @@ public class CompareNvdAndBugtraqDatabases	{
 		double bestSimilarityScore = 0.0, similarityScore, descrSimilarity, publTimeSimilarity, modifTimeSimilarity, referenceSimilarity, softwareSimilarity;
 		int indexOne = -1, indexTwo = -1;		
 
-		for (int i = 11; i < arrayOne.size(); i++)	{
+		for (int i = 0; i < arrayOne.size(); i++)	{
 			objectOne = (JSONObject) arrayOne.get(i);
 			for (int j = 0; j < arrayTwo.size(); j++)	{
 				objectTwo = (JSONObject) arrayTwo.get(j);
@@ -233,8 +233,7 @@ public class CompareNvdAndBugtraqDatabases	{
 		objectTwo = (JSONObject)arrayTwo.get(j);
 		if (objectOne.get(typeOfTime) != null && objectTwo.get(typeOfTime) != null)	{
 			timeOne = dtf.formatNVDDateTime(objectOne.get(typeOfTime).toString());
-			timeTwo = dtf.formatNVDDateTime(objectTwo.get(typeOfTime).toString());
-		//	timeTwo = dtf.formatBugtraqDateTime(objectTwo.get(typeOfTime).toString());
+			timeTwo = dtf.formatBugtraqDateTime(objectTwo.get(typeOfTime).toString());
 			if (timeOne == timeTwo) return 1.0;
 			else	return 1.0/(double)Math.abs(timeOne - timeTwo);
 		}

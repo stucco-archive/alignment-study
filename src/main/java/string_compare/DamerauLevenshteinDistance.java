@@ -1,5 +1,3 @@
-package alignmentStudy;
-
 public class DamerauLevenshteinDistance	{
 	
 	private String s1;
@@ -9,11 +7,10 @@ public class DamerauLevenshteinDistance	{
 	private int [][] table;
 	
 	//initializing private variables; calling distance computing functions
-	int damerauLevenshteinDistance (String str1, String str2)	{
-		
-		if (str1.equals(str2))	return 0;	//checking if strings are the same
-		if ((length1 = str1.length()) == 0)	return str2.length();
-		if ((length2 = str2.length()) == 0)	return length1;
+	double damerauLevenshteinDistance (String str1, String str2)	{
+			
+		if (str1.equals(str2))	return 1.0;	//checking if strings are the same
+		if ((length1 = str1.length()) == 0 | (length2 = str2.length()) == 0)	return 0.0;
 		
 		s1 = new String (str1);
 		s2 = new String (str2);
@@ -33,7 +30,7 @@ public class DamerauLevenshteinDistance	{
 	}
 	
 	//computing and returning Damerau-Levenshtein distance 
-	int computeDistance ()	{
+	double computeDistance ()	{
 		
 		int edit = 0;
 		
@@ -50,7 +47,7 @@ public class DamerauLevenshteinDistance	{
 			}
 		}	
 		
-		return table[length1][length2];
+		return normalizedDistance(table[length1][length2]);
 	}
 	
 	//finding a min between three values
@@ -59,5 +56,12 @@ public class DamerauLevenshteinDistance	{
 		int temp = Math.min(a,b);
 		return Math.min(temp, c);
 	}	
+		
+	double normalizedDistance (int distance)	{
+		
+		int maxLength = Math.max(length1, length2);
+		
+		return (double)(maxLength - distance)/(double)maxLength;
+	}
 }
 

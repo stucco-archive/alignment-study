@@ -1,8 +1,7 @@
-package alignmentStudy;
-
 //functiosn to compare trancated strings
 //taking two strigs to compare and penalty for opening the gap, and extending it
 //tends to value ends of the strings more than the middle
+
 public class AffineGap {
 	
 	private String s1;
@@ -20,7 +19,7 @@ public class AffineGap {
 	
 	public double affineGapDistance (String str1, String str2, double openPenalty, double extendPenalty)	{
 		
-		if (str1.equals(str2))  return 0.0;       //checking if strings are the same
+		if (str1.equals(str2))  return 1.0;       //checking if strings are the same
 		
 		length1 = str1.length();
 		length2 = str2.length();
@@ -37,11 +36,11 @@ public class AffineGap {
 		
 		matricesInitialization();
 		allignmentCalculation();
-		backtraceCalculation();
-		printAlignedStrings();
+	//	backtraceCalculation();
+	//	printAlignedStrings();
 		distance = D[length1][length2];		//distance is the very last element of D array
-
-		return distance;
+		
+		return normalized(distance);
 	}
 
 	void matricesInitialization()	{
@@ -157,4 +156,10 @@ public class AffineGap {
 
               return s2Aligned;
       	}
+
+	double normalized(double distance)	{
+		
+		double max = (double)Math.max(length1, length2);
+		return (max - distance)/max;
+	}
 }

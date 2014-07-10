@@ -1,5 +1,3 @@
-package alignmentStudy;
-
 //function return distance = 1.0 if absolute match, else 0 <= distance < 1.0
 //reference: 	1. 	An Adaptive String Comparator for Record Linkage
 //			William E. Yancey
@@ -51,22 +49,24 @@ public class JaroWinkler {
 		
 		boolean [] match1 = new boolean[length1];
 		boolean [] match2 = new boolean[length2];
-		
+
 		for (int i = 0; i < length1; i++)	{
-			for (int j = i + range; j < length2 && j >= 0 && j >= i-range; j--)	{
+			for (int j = i - range; j < i && j < length2; j++)	{	
+				if (j >= 0)	{
+					if (s1.charAt(i) == s2.charAt(j) && match1[i] == false && match2[j] == false)	{
+						m++;
+						match1[i] = true;
+						match2[j] = true;
+					}
+				}
+			}
+			for (int j = i; j < length2 && j < i + range; j++)	{
 				if (s1.charAt(i) == s2.charAt(j) && match1[i] == false && match2[j] == false)	{
 					m++;
 					match1[i] = true;	//bool arrays to mark matches
 					match2[j] = true;
 				}
 			}	
-			for (int j = i - range; j >= 0 && j < length2 && j <= i + range; j++)	{	
-				if (s1.charAt(i) == s2.charAt(j) && match1[i] == false && match2[j] == false)	{
-					m++;
-					match1[i] = true;
-					match2[j] = true;
-				}
-			}
 		}
 
 		//calculating transposition using bool arrays
@@ -83,21 +83,16 @@ public class JaroWinkler {
 	}
 	
 	void setDistance ()	{
-		
 		if(m == 0)	{
-			distance = 0;
+			distance = 0.0;
 		} else	{
-		//	System.out.println("m = " + m);
 			distance = ((double)m/length1 + (double)m/length2 + (double)(m-t)/m)/3.0;	
-			for (int i = 0; i < 4; i++)	{
+			for (int i = 0; i < 4 && i < length1 && i < length2; i++)	{
 				if (s1.charAt(i) == s2.charAt(i))	l++;
 				else	break;
 			}
-		//	System.out.println("distance = " + distance);
-		//	System.out.println("l = " + l);
 			
 			distance = distance + (l * 0.1 * (1 - distance));
-		//	System.out.println("distance = " + distance);
 		}
 	}
 

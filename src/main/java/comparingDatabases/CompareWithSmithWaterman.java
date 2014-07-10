@@ -58,9 +58,6 @@ public class CompareWithSmithWaterman	{
 			for (int j = 0; j < arrayTwo.size(); j++)	{
 				objectTwo = (JSONObject) arrayTwo.get(j);
 				descrSimilarity = compareDescriptions(objectOne.get("description"), objectTwo.get("description"));
-				
-				publTimeSimilarity = 0.0;
-				modifTimeSimilarity = 0.0;
 				publTimeSimilarity = compareTime (i, j, "publishedDate");	//specifying type of time to compare
 				modifTimeSimilarity = compareTime (i, j, "modifiedDate");
 				referenceSimilarity = compareReferences (objectOne.get("references"), objectTwo.get("references"));

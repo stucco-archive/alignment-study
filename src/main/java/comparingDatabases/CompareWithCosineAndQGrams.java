@@ -88,7 +88,6 @@ public class CompareWithCosineAndQGrams	{
 		for (int j = 0; j < str.length; j++)  {
 			if (rsw.containsString(str[j])) continue;	//removing stop words
 			str[j] = str[j].toLowerCase();    
-		//	str[j] = str[j].replaceAll ("[.,:;'!?'['']'(){}+-1234567890'\n']", "");     
 			str[j] = removeChars(str[j]);	//removes extra chars and trims extra space;
 			ps.add(str[j].toCharArray(), str[j].length());
 			ps.stem();
@@ -138,9 +137,8 @@ public class CompareWithCosineAndQGrams	{
 	//function traversing arrays and comparing corresponding elements
 	void compareDatabases()	{
 		
-		double bestSimilarityScore = 0.0, similarityScore, descrSimilarity, publTimeSimilarity, modifTimeSimilarity, referenceSimilarity, softwareSimilarity;
-		int indexOne = -1, indexTwo = -1;		
-
+		double similarityScore, descrSimilarity, publTimeSimilarity, modifTimeSimilarity, referenceSimilarity, softwareSimilarity;
+		
 		for (int i = 0; i < arrayOne.size(); i++)	{
 			objectOne = (JSONObject) arrayOne.get(i);
 			for (int j = 0; j < arrayTwo.size(); j++)	{
@@ -152,11 +150,6 @@ public class CompareWithCosineAndQGrams	{
 				softwareSimilarity = compareSoftware (objectOne.get("vulnerableSoftware"), objectTwo.get("Vulnerable"));
 				similarityScore = descrSimilarity + publTimeSimilarity + modifTimeSimilarity + referenceSimilarity + softwareSimilarity;
 				addToMatchTree (similarityScore, objectOne, objectTwo);
-				if (similarityScore > bestSimilarityScore)	{
-					bestSimilarityScore = similarityScore;
-					indexOne = i;
-					indexTwo = j;
-				}
 			}
 		}
 	}

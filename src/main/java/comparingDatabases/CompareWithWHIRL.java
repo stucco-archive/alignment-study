@@ -137,8 +137,7 @@ public class CompareWithWHIRL	{
 	//function traversing arrays and comparing corresponding elements
 	void compareDatabases()	{
 		
-		double bestSimilarityScore = 0.0, similarityScore, descrSimilarity, publTimeSimilarity, modifTimeSimilarity, referenceSimilarity, softwareSimilarity;
-		int indexOne = -1, indexTwo = -1;		
+		double similarityScore, descrSimilarity, publTimeSimilarity, modifTimeSimilarity, referenceSimilarity, softwareSimilarity;
 
 		for (int i = 0; i < arrayOne.size(); i++)	{
 			objectOne = (JSONObject) arrayOne.get(i);
@@ -151,10 +150,6 @@ public class CompareWithWHIRL	{
 				softwareSimilarity = compareSoftware (objectOne.get("vulnerableSoftware"), objectTwo.get("Vulnerable"));
 				similarityScore = descrSimilarity + publTimeSimilarity + modifTimeSimilarity + referenceSimilarity + softwareSimilarity;
 				addToMatchTree (similarityScore, objectOne, objectTwo);
-				if (similarityScore > bestSimilarityScore)	{
-					bestSimilarityScore = similarityScore;
-					indexOne = i;
-					indexTwo = j;
 				}
 			}
 		}

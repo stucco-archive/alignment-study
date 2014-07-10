@@ -2,7 +2,7 @@
 //based on description, published time, modified time, and references, vulnerable software
 //each property worth from 0.0 (have nothing in common) to 1.0 (the same)
 //times are compared using difference in times represented in unix integer
-//descriptions are compared with Jaro Winkler algorithm
+//descriptions are compared with QGrams algorithm
 
 import java.io.FileReader;
 import java.io.FileNotFoundException;

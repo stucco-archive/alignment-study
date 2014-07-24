@@ -8,12 +8,17 @@ import java.io.FileReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.util.*;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import net.sf.json.JSONSerializer;
+import net.sf.json.JSON;
 
 public class CompareWithWHIRL	{
 	
@@ -25,8 +30,11 @@ public class CompareWithWHIRL	{
 	private DateTimeFormat dtf;
 	private Map<Integer, Map<String, Integer>>  mapOne; 	//size of JSON array
 	private Map<Integer, Map<String, Integer>>  mapTwo; 	//size of JSON array
+	private Map<Integer, Map<String, Integer>>  idMap; 	//size of JSON array
+	private Map<Integer, Map<String, Integer>>  classMap; 	//size of JSON array
 	private Map<String, Integer> allWords;
-	private TreeMap<Double, JSONObject[]> matchTree;
+	private Map<String, Integer> idAndClassAllWords;
+	private TreeMap<Double, ArrayList<ObjectsSimilarity>> matchTree;
 	private char[] extraChars;	//used to remove extra chars from text and trim extra space
 
 	public CompareWithWHIRL (JSONArray arrayOne, JSONArray arrayTwo)	{
@@ -35,10 +43,13 @@ public class CompareWithWHIRL	{
 		objectTwo = new JSONObject ();
 		mapOne = new HashMap<Integer, Map<String, Integer>>(); 	
 		mapTwo = new HashMap<Integer, Map<String, Integer>>(); 	
-		matchTree = new TreeMap<Double, JSONObject[]>(Collections.reverseOrder());
+		idMap = new HashMap<Integer, Map<String, Integer>>(); 	
+		classMap = new HashMap<Integer, Map<String, Integer>>(); 	
+		matchTree = new TreeMap<Double, ArrayList<ObjectsSimilarity>>(Collections.reverseOrder());
 		dtf = new DateTimeFormat();
 		rsw = new RemoveStopWords("StopWords.txt");
 		allWords = new HashMap<String, Integer>();				
+		idAndClassAllWords = new HashMap<String, Integer>();				
 		extraChars = ",.:;[]?!1234567890<>[]{}()*&^%$#@/+=_-''".toCharArray();	//array of chars to be removed, could be modified
 		this.arrayOne = arrayOne;
 		this.arrayTwo = arrayTwo;
@@ -51,17 +62,23 @@ public class CompareWithWHIRL	{
 		storeArrayOneIntoMaps();	//arrayOne into mapOne and allWords
 		storeArrayTwoIntoMaps();	//arrayTwo into mapTwo and allWords
 		compareDatabases();		//comparing descripiton
-		printMatchTree(10);		//print first 10 best matches
+		printMatchTree(10, "myTable.txt");		//print first 5 best matches
 	}
 
 	//creating map for cosine similarity and tf-idf
 	void storeArrayOneIntoMaps()	{
 		for (int i = 0; i < arrayOne.size(); i++)	{
 			Map <String, Integer> map = new HashMap<String, Integer>();
+			Map <String, Integer> tempMap = new HashMap<String, Integer>();
 			objectOne = (JSONObject)arrayOne.get(i);
-			if (objectOne.get("description") != null)
+			if (objectOne.get("description") != null)	{
 				stemObjectAndAddToAllWordsMap (objectOne.get("description").toString(), map);
-			mapOne.put(i, map);
+				mapOne.put(i, map);
+			}
+			if (objectOne.get("newId") != null)	{
+				stemObjectAndAddToIdAndClassAllWordsMap (objectOne.get("newId").toString(), tempMap);
+				idMap.put(i, tempMap);
+			}
 		}
 	}
 
@@ -69,16 +86,74 @@ public class CompareWithWHIRL	{
 	void storeArrayTwoIntoMaps()	{
 		for (int i = 0; i < arrayTwo.size(); i++)	{
 			Map <String, Integer> map = new HashMap<String, Integer>();
+			Map <String, Integer> tempMap = new HashMap<String, Integer>();
 			objectTwo = (JSONObject)arrayTwo.get(i);
-			if (objectTwo.get("description") != null)
+			if (objectTwo.get("description") != null)	{
 				stemObjectAndAddToAllWordsMap (objectTwo.get("description").toString(), map);
-			mapTwo.put(i, map);
+				mapTwo.put(i, map);
+			}
+			if (objectTwo.get("class") != null)	{
+				stemObjectAndAddToIdAndClassAllWordsMap (objectTwo.get("class").toString(), tempMap);
+				classMap.put(i, tempMap);
+			}
 		}
 	}
 
 	//removing suffixes from all words 
 	void  stemObjectAndAddToAllWordsMap (String s, Map<String, Integer> map)	{
-		
+	
+		PorterStemmer ps = new PorterStemmer();
+		String[] str = s.split(" ");
+		String substring, key;
+		boolean done = false;
+		int count;
+	
+		for (int j = 0; j < str.length; j++)  {
+			if (rsw.containsString(str[j])) continue;	//removing stop words
+			str[j] = str[j].toLowerCase();    
+			str[j] = removeChars(str[j]);	//removes extra chars and trims extra space;
+		//	ps.add(str[j].toCharArray(), str[j].length());		
+		//	ps.stem();
+		//	key = "#" + ps.toString() + "#";
+			key = str[j]; //ps.toString();
+                      //  for (int i = 0; i <= key.length() - 2; i++)  {
+                                if (map.get(key) == null)	map.put(key, 1);
+				else	{
+					count =  map.get(key);
+					count++;
+					map.put(key, count); 
+				}
+				if (allWords.get(key) == null)	allWords.put(key, 1);
+				else if (!done){
+					
+					count = allWords.get(key);
+					count++;
+					allWords.put(key, count);
+					done = true;
+				}
+                       
+
+                     /*   for (int i = 0; i <= key.length() - 2; i++)  {
+                                if (map.get(substring = key.substring(i, i + 2)) == null)	map.put(substring, 1);
+				else	{
+					count =  map.get(substring);
+					count++;
+					map.put(substring, count); 
+				}
+				if (allWords.get(substring) == null)	allWords.put(substring, 1);
+				else if (!done){
+					
+					count = allWords.get(substring);
+					count++;
+					allWords.put(substring, count);
+					done = true;
+				}
+                        }*/
+                }
+	}
+	
+	void  stemObjectAndAddToIdAndClassAllWordsMap (String s, Map<String, Integer> map)	{
+	
 		PorterStemmer ps = new PorterStemmer();
 		String[] str = s.split(" ");
 		String substring, key;
@@ -100,12 +175,12 @@ public class CompareWithWHIRL	{
 					count++;
 					map.put(substring, count); 
 				}
-				if (allWords.get(substring) == null)	allWords.put(substring, 1);
+				if (idAndClassAllWords.get(substring) == null)	idAndClassAllWords.put(substring, 1);
 				else if (!done){
 					
-					count = allWords.get(substring);
+					count = idAndClassAllWords.get(substring);
 					count++;
-					allWords.put(substring, count);
+					idAndClassAllWords.put(substring, count);
 					done = true;
 				}
                         }
@@ -137,20 +212,26 @@ public class CompareWithWHIRL	{
 	//function traversing arrays and comparing corresponding elements
 	void compareDatabases()	{
 		
-		double similarityScore, descrSimilarity, publTimeSimilarity, modifTimeSimilarity, referenceSimilarity, softwareSimilarity;
+		double bestSimilarityScore = 0.0, similarityScore, descrSimilarity, publTimeSimilarity, modifTimeSimilarity, referenceSimilarity, softwareSimilarity;
+		int indexOne = -1, indexTwo = -1;		
 
 		for (int i = 0; i < arrayOne.size(); i++)	{
 			objectOne = (JSONObject) arrayOne.get(i);
 			for (int j = 0; j < arrayTwo.size(); j++)	{
 				objectTwo = (JSONObject) arrayTwo.get(j);
-				descrSimilarity = compareDescriptions(i, j);	 //sending index of corresponding objects to compare
-				publTimeSimilarity = compareTime (i, j, "publishedDate");	//specifying type of time to compare
-				modifTimeSimilarity = compareTime (i, j, "modifiedDate");
-				referenceSimilarity = compareReferences (objectOne.get("references"), objectTwo.get("references"));
-				softwareSimilarity = compareSoftware (objectOne.get("vulnerableSoftware"), objectTwo.get("Vulnerable"));
-				similarityScore = descrSimilarity + publTimeSimilarity + modifTimeSimilarity + referenceSimilarity + softwareSimilarity;
-				addToMatchTree (similarityScore, objectOne, objectTwo);
-				}
+				ObjectsSimilarity os = new ObjectsSimilarity();
+				os.objectOne = objectOne;
+				os.objectTwo = objectTwo;
+				os.descriptionSimilarity = compareDescriptions(i, j);	 //sending index of corresponding objects to compare
+				os.referenceSimilarity = compareReferences (objectOne.get("references"), objectTwo.get("references"));
+				os.softwareSimilarity = compareSoftware (objectOne.get("vulnerableSoftware"), objectTwo.get("Vulnerable"));
+				os.idAndClassSimilarity = compareIdAndClass(i, j);
+				os.publTimeSimilarity = compareTime (i, j, "publishedDate");	//specifying type of time to compare
+				os.modifTimeSimilarity = compareTime (i, j, "modifiedDate");
+				similarityScore = os.descriptionSimilarity + os.publTimeSimilarity + os.modifTimeSimilarity + os.referenceSimilarity + os.softwareSimilarity + os.idAndClassSimilarity;
+				if (os.idAndClassSimilarity > 0.7)
+					System.out.println(objectOne.get("newId") + " = " + objectTwo.get("class"));
+				addToMatchTree (similarityScore, os);
 			}
 		}
 	}
@@ -158,17 +239,17 @@ public class CompareWithWHIRL	{
 	//compares descriptions using WHIRL or cosine similarity
 	double compareDescriptions(int i, int j)	{
 	
+		if (mapOne.get(i) == null | mapTwo.get(j) == null)	return 0.0;
 		Map<String, Integer> iMap = new HashMap<String, Integer>();
 		Map<String, Integer> jMap = new HashMap<String, Integer>();
 		double 	similarity, vDinominator = 0.0, uDinominator = 0.0, numerator = 0.0; 
 		double[] v = new double [allWords.size()];
 		double[] u = new double [allWords.size()];
-
 		
 		iMap = mapOne.get(i);
 		jMap = mapTwo.get(j);
-		calculateUOrV(iMap, v);
-		calculateUOrV (jMap, u);
+		calculateV(iMap, v);
+		calculateU (jMap, u);
 		for (int k = 0; k < allWords.size(); k++)	{
 			numerator = numerator + (v[k] * u[k]);
 			vDinominator = vDinominator + (v[k] * v[k]); 
@@ -181,7 +262,24 @@ public class CompareWithWHIRL	{
 	}
 	
 	//helper function for compareDescriptions
-	void calculateUOrV (Map <String, Integer> map, double[] array)	{
+	void calculateV (Map <String, Integer> map, double[] array)	{
+		
+		double tf, idf;
+		int x = 0;
+
+		for (String s : allWords.keySet())	{
+			if (map.get(s) == null)	array[x] = 0.0;
+			else	{
+				tf = (double)map.get(s);
+				idf = (double)mapOne.size()/(double)allWords.get(s);	 
+				array[x] = Math.log(tf + 1.0) * Math.log(idf);	
+			}
+			x++;
+		}					
+	}
+	
+	//helper function for compareDescriptions
+	void calculateU (Map <String, Integer> map, double[] array)	{
 		
 		double tf, idf;
 		int x = 0;
@@ -197,20 +295,87 @@ public class CompareWithWHIRL	{
 		}					
 	}
 	
+	//compares descriptions using WHIRL or cosine similarity
+	double compareIdAndClass(int i, int j)	{
+
+		if (idMap.get(i) == null | classMap.get(j) == null)	return 0.0;
+		Map<String, Integer> iMap = new HashMap<String, Integer>();
+		Map<String, Integer> jMap = new HashMap<String, Integer>();
+		double 	similarity, vDinominator = 0.0, uDinominator = 0.0, numerator = 0.0; 
+		double[] v = new double [idAndClassAllWords.size()];
+		double[] u = new double [idAndClassAllWords.size()];
+
+		
+		iMap = idMap.get(i);
+		jMap = classMap.get(j);
+		calculateUForIdAndClass(iMap, v);
+		calculateVForIdAndClass (jMap, u);
+		for (int k = 0; k < idAndClassAllWords.size(); k++)	{
+			numerator = numerator + (v[k] * u[k]);
+			vDinominator = vDinominator + (v[k] * v[k]); 
+			uDinominator = uDinominator + (u[k] * u[k]);					
+		}
+		if (vDinominator == 0.0 | uDinominator == 0.0)	similarity = 0.0;
+		else	similarity = numerator / (Math.sqrt(vDinominator) * Math.sqrt(uDinominator));
+		
+		return similarity;
+	}
+	
+	//helper function for compareDescriptions
+	void calculateVForIdAndClass (Map <String, Integer> map, double[] array)	{
+		
+		double tf, idf;
+		int x = 0;
+
+		for (String s : idAndClassAllWords.keySet())	{
+			if (map.get(s) == null)	array[x] = 0.0;
+			else	{
+				tf = (double)map.get(s);
+				idf = (double)idMap.size()/(double)idAndClassAllWords.get(s);	 
+				array[x] = Math.log(tf + 1.0) * Math.log(idf);	
+			}
+			x++;
+		}					
+	}
+	
+	//helper function for compareDescriptions
+	void calculateUForIdAndClass (Map <String, Integer> map, double[] array)	{
+		
+		double tf, idf;
+		int x = 0;
+
+		for (String s : idAndClassAllWords.keySet())	{
+			if (map.get(s) == null)	array[x] = 0.0;
+			else	{
+				tf = (double)map.get(s);
+				idf = (double)classMap.size()/(double)idAndClassAllWords.get(s);	 
+				array[x] = Math.log(tf + 1.0) * Math.log(idf);	
+			}
+			x++;
+		}					
+	}
+	
 	//returns 0.0 if time is not specifyed in both objects
 	double compareTime (int i, int j, String typeOfTime)	{
 		
-		long timeOne, timeTwo;
-
 		objectOne = (JSONObject)arrayOne.get(i);
 		objectTwo = (JSONObject)arrayTwo.get(j);
-		if (objectOne.get(typeOfTime) != null && objectTwo.get(typeOfTime) != null)	{
+		if (objectOne.get(typeOfTime) == null | objectTwo.get(typeOfTime) == null |
+			objectOne.get("source") == null && objectTwo.get("source").toString() == null) return 0.0;
+
+		long timeOne = 0, timeTwo = 0;
+
+		if (objectOne.get("source").toString().equals("NVD"))
 			timeOne = dtf.formatNVDDateTime(objectOne.get(typeOfTime).toString());
+		if (objectOne.get("source").toString().equals("bugtraq"))
+			timeOne = dtf.formatBugtraqDateTime(objectOne.get(typeOfTime).toString());
+		if (objectTwo.get("source").toString().equals("NVD"))
+			timeTwo = dtf.formatNVDDateTime(objectTwo.get(typeOfTime).toString());
+		if (objectTwo.get("source").toString().equals("bugtraq"))
 			timeTwo = dtf.formatBugtraqDateTime(objectTwo.get(typeOfTime).toString());
-			if (timeOne == timeTwo) return 1.0;
-			else	return 1.0/(double)Math.abs(timeOne - timeTwo);
-		}
-		else return 0.0;
+		
+		if (timeOne == timeTwo) return 1.0;
+		else	return 1.0/(double)Math.abs(timeOne - timeTwo);
 	}
 	
 	//return is between 0.0 (nothing in common) and 1.0
@@ -246,64 +411,110 @@ public class CompareWithWHIRL	{
 		String[] array1;
 		String[] array2;
 		total = a1.size() + a2.size();
-
+		
 		for (int i = 0; i < a1.size(); i++)	{
 			s1 = a1.get(i).toString();
+			s1.replaceAll("_", " ");
 			for (int j = 0; j < a2.size(); j++)	{
 				s2 = a2.get(j).toString();
-				if (compareSoftwareHelper(s1, s2))	{
-					match++;
-					total--;
-				}
+				s2.replaceAll("_", " ");
+				if (compareSoftwareHelper(s1, s2))	
+					match++;}
 			}
-		}		
-		
-		return (double)match/(double)total;
+	
+		return (double)match/(double)(total - match);
 	}
 		
 	boolean compareSoftwareHelper	(String s1, String s2)	{
 
-		s1 = s1.toLowerCase();
-		s2 = s2.toLowerCase();
-		String[] a = s1.split(":");
-		String[] b = s2.split(" ");
-		boolean equals = false;
-
-		int j = 0;
-		for (int i = 2; i < a.length; i++)	{	
-			if (a[i].toString().equals(b[j].toString()))	{	 
-				if (i == a.length - 1)	equals = true;
-			}
-			else if (++j == b.length)	break;
-			else break;
-		}	
+		s1 = cpeToString(s1.toLowerCase());
+		s2 = cpeToString(s2.toLowerCase());		
 		
-		return equals;
+		return s1.equals(s2);
 	}
-				
-	void addToMatchTree (double similarityScore, JSONObject objectOne, JSONObject objectTwo)	{
+
+
+	String cpeToString (String str)	{
+		
+		String[] array;
+		String newStr;
+
+		if (str.length() > 7 && str.charAt(0) == 'c' && str.charAt(1) == 'p' && str.charAt(2) == 'e')   {
+ 				str = str.substring(7, str.length());
+ 			array = str.split(":");
+ 		}
+ 		else    array = str.split(" ");
+		
+		newStr = array[0];
+		for (int i = 1; i < array.length; i++)	{
+			if (array[i] != " ")	newStr = newStr + " " + array[i];
+		}
+
+		return newStr;
+	}
+		
+	void addToMatchTree (double similarityScore, ObjectsSimilarity os)	{
 	
-		JSONObject[] pair = {objectOne, objectTwo};
-		matchTree.put(similarityScore, pair);
+		if (matchTree.get(similarityScore) == null)	{
+			ArrayList<ObjectsSimilarity> l = new ArrayList<ObjectsSimilarity>();
+			l.add(os);
+			matchTree.put(similarityScore, l);
+		}
+		else	{
+			ArrayList<ObjectsSimilarity> l = new ArrayList<ObjectsSimilarity>(matchTree.get(similarityScore));
+			l.add(os);
+			matchTree.put(similarityScore, l);
+		}
 	}
 	
 	//printing "limit" elements starting in descending order		
-	void printMatchTree(int limit)	{
+	void printMatchTree(int limit, String outFile)	{
 		
-		JSONObject[] array = new JSONObject[2];
-		
-		int count = 0;
-		Iterator it = matchTree.entrySet().iterator();
-		while (it.hasNext())	{
-			Map.Entry entry = (Map.Entry) it.next();
-			array = (JSONObject[]) entry.getValue();
-			System.out.println("similarityScore  =  " + entry.getKey());
-			System.out.println("--objectOne-->   " + array[0]);
-			System.out.println("--objectTwo-->   " + array[1]);
-			System.out.println(count);
-			System.out.println();
-			count++;
-			if (count == limit) break;
+		limit = matchTree.size();
+
+		try {
+                	FileWriter fw = new FileWriter(outFile);	//true is for appending	
+			BufferedWriter bw = new BufferedWriter(fw);
+
+			JSONSerializer js = new JSONSerializer();
+			JSONObject[] array = new JSONObject[2];
+			
+			boolean done = false;
+			int count = 0;
+			Iterator it = matchTree.entrySet().iterator();
+			while (it.hasNext() && !done)	{
+				Map.Entry entry = (Map.Entry) it.next();
+				ArrayList<ObjectsSimilarity> l = new ArrayList<ObjectsSimilarity>();
+				l = (ArrayList<ObjectsSimilarity>) entry.getValue();
+				for (int i = 0; i < l.size(); i++)	{
+					bw.write("WHIRL: \n");
+					bw.write("---------------  \n");
+					bw.write("similarityScore  =  " + entry.getKey() + "\n");
+					bw.write("descriptionScore = " + l.get(i).descriptionSimilarity + "\n");
+					bw.write("publTimeSimilarity = " + l.get(i).publTimeSimilarity + "\n");
+					bw.write("modifTimeSimilarity = " + l.get(i).modifTimeSimilarity + "\n");
+					bw.write("referenceSimilarity = " + l.get(i).referenceSimilarity + "\n");
+					bw.write("softwareSimilarity = " + l.get(i).softwareSimilarity + "\n");
+					bw.write("idAndClassSimilarity = " + l.get(i).idAndClassSimilarity + "\n");
+					JSON jsonOne = js.toJSON(l.get(i).objectOne.toString());
+					bw.write("- objectOne: \n" + jsonOne.toString(2) + "\n");
+					JSON jsonTwo = js.toJSON(l.get(i).objectTwo.toString());
+					bw.write("- objectTwo: \n " + jsonTwo.toString(2) + "\n");
+					count++;
+					bw.write("\n****************************************************************\n\n");
+					if (count == limit)	{
+						done = true;
+					 	break;	
+					}
+				}
+			}	
+			bw.close();
+		} catch (IOException e)	{
+			e.printStackTrace();
 		}
+	}
+
+	TreeMap<Double, ArrayList<ObjectsSimilarity>> getMatchTree()	{
+		return matchTree;
 	}
 }

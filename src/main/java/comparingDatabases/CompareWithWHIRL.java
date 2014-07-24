@@ -1,9 +1,8 @@
-//program is comparing two documents: NVD and Bugtraq to find most similar objects
+//program is comparing two documents: NVD and Bugtraq to find most similar objectsd
 //based on description, published time, modified time, and references, vulnerable software
 //each property worth from 0.0 (have nothing in common) to 1.0 (the same)
 //times are compared using difference in times represented in unix integer
-//descriptions are compared using cosine similarity with qgrams (2)
-//WHIRL could be used to compare descriptions by uncommenting lines in calculateUOrV function 
+//descriptions are compared using WHIRL (cosine similarity, qgrams (2), and tf-idf)
 
 import java.io.FileReader;
 import java.io.FileNotFoundException;
@@ -16,11 +15,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-public class CompareNvdAndBugtraqDatabases	{
-	private FileReader readerOne;
-	private FileReader readerTwo;
-	private JSONParser parserOne;
-	private JSONParser parserTwo;
+public class CompareWithWHIRL	{
+	
 	private JSONObject objectOne;
 	private JSONObject objectTwo;
 	private JSONArray arrayOne;
@@ -30,43 +26,36 @@ public class CompareNvdAndBugtraqDatabases	{
 	private Map<Integer, Map<String, Integer>>  mapOne; 	//size of JSON array
 	private Map<Integer, Map<String, Integer>>  mapTwo; 	//size of JSON array
 	private Map<String, Integer> allWords;
-	private TreeMap matchTree;
+	private TreeMap<Double, JSONObject[]> matchTree;
 	private char[] extraChars;	//used to remove extra chars from text and trim extra space
 
-	public CompareNvdAndBugtraqDatabases(String[] args)	{
+	public CompareWithWHIRL (JSONArray arrayOne, JSONArray arrayTwo)	{
 
-		try {
-			readerOne = new FileReader (args[0]);
-			readerTwo = new FileReader (args[1]);
-			parserOne = new JSONParser ();
-			parserTwo = new JSONParser ();
-			objectOne = new JSONObject ();
-			objectTwo = new JSONObject ();
-			arrayOne = (JSONArray)parserOne.parse(readerOne); //JSON array from NVD database
-			arrayTwo = (JSONArray)parserTwo.parse(readerTwo); //JSON array from bugtraq database
-			mapOne = new HashMap<Integer, Map<String, Integer>>(); 	
-			mapTwo = new HashMap<Integer, Map<String, Integer>>(); 	
-			matchTree = new TreeMap(Collections.reverseOrder());
-			dtf = new DateTimeFormat();
-			rsw = new RemoveStopWords("StopWords.txt");
-			allWords = new HashMap<String, Integer>();				
-			extraChars = ",.:;[]?!1234567890<>[]{}()*&^%$#@/+=_-''".toCharArray();	//array of chars to be removed, could be modified
+		objectOne = new JSONObject ();
+		objectTwo = new JSONObject ();
+		mapOne = new HashMap<Integer, Map<String, Integer>>(); 	
+		mapTwo = new HashMap<Integer, Map<String, Integer>>(); 	
+		matchTree = new TreeMap<Double, JSONObject[]>(Collections.reverseOrder());
+		dtf = new DateTimeFormat();
+		rsw = new RemoveStopWords("StopWords.txt");
+		allWords = new HashMap<String, Integer>();				
+		extraChars = ",.:;[]?!1234567890<>[]{}()*&^%$#@/+=_-''".toCharArray();	//array of chars to be removed, could be modified
+		this.arrayOne = arrayOne;
+		this.arrayTwo = arrayTwo;
+
+		compare();
+	}
+
+	void compare()	{
 			
-			storeNVDArrayIntoMaps();	//arrayOne into mapOne and allWords
-			storeBugtraqArrayIntoMaps();	//arrayTwo into mapTwo and allWords
-			compareDatabases();		//comparing descripiton
-			printMatchTree(10);	//print first 10 best matches
-		} catch (FileNotFoundException e)	{
-			e.printStackTrace();
-		} catch (IOException e)		{
-			e.printStackTrace();
-		} catch (ParseException e)	{
-			e.printStackTrace();
-		}		
+		storeArrayOneIntoMaps();	//arrayOne into mapOne and allWords
+		storeArrayTwoIntoMaps();	//arrayTwo into mapTwo and allWords
+		compareDatabases();		//comparing descripiton
+		printMatchTree(10);		//print first 10 best matches
 	}
 
 	//creating map for cosine similarity and tf-idf
-	void storeNVDArrayIntoMaps()	{
+	void storeArrayOneIntoMaps()	{
 		for (int i = 0; i < arrayOne.size(); i++)	{
 			Map <String, Integer> map = new HashMap<String, Integer>();
 			objectOne = (JSONObject)arrayOne.get(i);
@@ -77,7 +66,7 @@ public class CompareNvdAndBugtraqDatabases	{
 	}
 
 	//creating map for cosine similarity and tf-idf
-	void storeBugtraqArrayIntoMaps()	{
+	void storeArrayTwoIntoMaps()	{
 		for (int i = 0; i < arrayTwo.size(); i++)	{
 			Map <String, Integer> map = new HashMap<String, Integer>();
 			objectTwo = (JSONObject)arrayTwo.get(i);
@@ -99,7 +88,6 @@ public class CompareNvdAndBugtraqDatabases	{
 		for (int j = 0; j < str.length; j++)  {
 			if (rsw.containsString(str[j])) continue;	//removing stop words
 			str[j] = str[j].toLowerCase();    
-		//	str[j] = str[j].replaceAll ("[.,:;'!?'['']'(){}+-1234567890'\n']", "");     
 			str[j] = removeChars(str[j]);	//removes extra chars and trims extra space;
 			ps.add(str[j].toCharArray(), str[j].length());
 			ps.stem();
@@ -149,10 +137,9 @@ public class CompareNvdAndBugtraqDatabases	{
 	//function traversing arrays and comparing corresponding elements
 	void compareDatabases()	{
 		
-		double bestSimilarityScore = 0.0, similarityScore, descrSimilarity, publTimeSimilarity, modifTimeSimilarity, referenceSimilarity, softwareSimilarity;
-		int indexOne = -1, indexTwo = -1;		
+		double similarityScore, descrSimilarity, publTimeSimilarity, modifTimeSimilarity, referenceSimilarity, softwareSimilarity;
 
-		for (int i = 11; i < arrayOne.size(); i++)	{
+		for (int i = 0; i < arrayOne.size(); i++)	{
 			objectOne = (JSONObject) arrayOne.get(i);
 			for (int j = 0; j < arrayTwo.size(); j++)	{
 				objectTwo = (JSONObject) arrayTwo.get(j);
@@ -163,24 +150,9 @@ public class CompareNvdAndBugtraqDatabases	{
 				softwareSimilarity = compareSoftware (objectOne.get("vulnerableSoftware"), objectTwo.get("Vulnerable"));
 				similarityScore = descrSimilarity + publTimeSimilarity + modifTimeSimilarity + referenceSimilarity + softwareSimilarity;
 				addToMatchTree (similarityScore, objectOne, objectTwo);
-				if (similarityScore > bestSimilarityScore)	{
-					bestSimilarityScore = similarityScore;
-					indexOne = i;
-					indexTwo = j;
 				}
 			}
 		}
-		//	if (timeSimilarity > 0.7)	{
-			//	objectOne = (JSONObject) arrayOne.get(indexOne);
-			//	objectTwo = (JSONObject) arrayTwo.get(indexTwo);
-			//	System.out.println("similarity = " + bestSimilarityScore);
-			//	System.out.println(" ---> " + objectOne.get("publishedDate").toString());
-			//	System.out.println(" ---> " + objectTwo.get("publishedDate").toString());
-			//	System.out.println(" ---> " + objectOne.toString());
-			//	System.out.println(" ---> " + objectTwo.toString());
-			//	System.out.println();	
-		//	}
-		
 	}
 	
 	//compares descriptions using WHIRL or cosine similarity
@@ -211,14 +183,15 @@ public class CompareNvdAndBugtraqDatabases	{
 	//helper function for compareDescriptions
 	void calculateUOrV (Map <String, Integer> map, double[] array)	{
 		
+		double tf, idf;
 		int x = 0;
+
 		for (String s : allWords.keySet())	{
 			if (map.get(s) == null)	array[x] = 0.0;
 			else	{
-			//	tf = (double)map.get(s);	//tf-idf
-			//	idf = (double)mapTwo.size()/(double)allWords.get(s);	//tf-idf 
-			//	array[x] = Math.log(tf + 1.0) * Math.log(idf);	//tf-idf
-				array[x] = (double)map.get(s);	//cosine similarity
+				tf = (double)map.get(s);
+				idf = (double)mapTwo.size()/(double)allWords.get(s);	 
+				array[x] = Math.log(tf + 1.0) * Math.log(idf);	
 			}
 			x++;
 		}					
@@ -233,8 +206,7 @@ public class CompareNvdAndBugtraqDatabases	{
 		objectTwo = (JSONObject)arrayTwo.get(j);
 		if (objectOne.get(typeOfTime) != null && objectTwo.get(typeOfTime) != null)	{
 			timeOne = dtf.formatNVDDateTime(objectOne.get(typeOfTime).toString());
-			timeTwo = dtf.formatNVDDateTime(objectTwo.get(typeOfTime).toString());
-		//	timeTwo = dtf.formatBugtraqDateTime(objectTwo.get(typeOfTime).toString());
+			timeTwo = dtf.formatBugtraqDateTime(objectTwo.get(typeOfTime).toString());
 			if (timeOne == timeTwo) return 1.0;
 			else	return 1.0/(double)Math.abs(timeOne - timeTwo);
 		}
@@ -334,9 +306,4 @@ public class CompareNvdAndBugtraqDatabases	{
 			if (count == limit) break;
 		}
 	}
-
-	public static void main (String[] args)	{
-		
-		new CompareNvdAndBugtraqDatabases (args);
-	}	
 }

@@ -1,9 +1,8 @@
-package alignmentStudy;
-
 //function is aligning two strings and retern similarity score based on local alignment
 //it is an extension of edit distance and affine gap distance. 
 //mismatches in the middle are the most important
 //will identify "Jogh Brown" and "John B" as the same
+
 public class SmithWaterman {
 	private String s1;	//given strings
         private String s2;
@@ -12,13 +11,13 @@ public class SmithWaterman {
         private int[][] H;	//matrix for the best score calculation
         private int length1;	//lengths of the strings
         private int length2;
-        private int similarityScore;
+        private double similarityScore;
 	private int maxI; 	//i index of the largest score in the metrix
 	private int maxJ;	//j index of te largest score int he metrix
 	
-	int smithWatermanScore (String str1, String str2)	{
+	double smithWatermanScore (String str1, String str2)	{
 		
-		if (str1.equals(str2))	 return 0;       //checking if strings are the     same           
+		if (str1.equals(str2))	 return 1.0;       //checking if strings are the     same           
 		
 		length1 = str1.length();
 		length2 = str2.length();
@@ -34,9 +33,9 @@ public class SmithWaterman {
 
 		matrixInitialization();
 		scoreCalculation();
-		traceback();
 		setSimilarityScore();
-		printAlignment();
+	//	traceback();
+	//	printAlignment();
 
 		return similarityScore;
 	}
@@ -57,6 +56,7 @@ public class SmithWaterman {
 				int deletion = H[i-1][j] + score(s1.charAt(i-1), '-');
 				int insertion =  H[i][j-1] + score('-', s2.charAt(j-1));
 				H[i][j] = max(matchMismatch, deletion, insertion, 0);
+			//	System.out.println(H[i][j]);
 				if (H[i][j] > H[maxI][maxJ]) {
 					maxI = i;	//saving the best value (max value)
 					maxJ = j;
@@ -66,9 +66,14 @@ public class SmithWaterman {
 	}
 	//return 2 points if chars are the same, and -1 if not
 	int score (char a, char b)	{
-	
-		if (a == b)	return 2;
-		else return -1;
+		
+		int r;
+
+		if (a == b)	r = 2;
+		else r = -1;
+//		System.out.println(a + " " + b + " " + r);
+
+		return r;
 	}
 	
 	//max int between four ints
@@ -80,7 +85,12 @@ public class SmithWaterman {
 	//similarity score is the bigest score in H matrix
 	void setSimilarityScore()	{
 
-		similarityScore = H[maxI][maxJ];
+		similarityScore = normalized(H[maxI][maxJ]);
+	}
+
+	double normalized (int score)	{
+	
+		return (double)score/((double)Math.max(length1, length2) * 2);
 	}
 	
 	//traceback to compose an alignment strings

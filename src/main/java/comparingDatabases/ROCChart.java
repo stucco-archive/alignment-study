@@ -21,9 +21,12 @@ import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
 public class ROCChart extends JFrame {
+			
+	private XYSeries series;
+	private List data;
+	private String title;
+	private double area;
 
-	private final XYSeries series;
-	List data;
 	class Point implements Comparator<Point>	{
 	
 		double x;
@@ -42,21 +45,28 @@ public class ROCChart extends JFrame {
   	public ROCChart(String applicationTitle, String chartTitle) {
         	super(applicationTitle);
 
-		series = new XYSeries(chartTitle);
+		//series = new XYSeries(chartTitle);
     		data = new ArrayList();
+		title = chartTitle;
 	}
 
 	void addData(double x, double y)	{
 		
-		series.add(x, y);
+	//	series.add(x, y);
 		data.add(new Point(x, y));
 		
 	}
 
 	void drawChart()	{
-    		
+  						  
+		calculateArea();				
+		series = new XYSeries("Area = " + Double.toString(area));
+		for (Object point : data)	{
+			Point p = (Point) point;
+			series.add(p.x, p.y);
+		}
 		final XYSeriesCollection collection = new XYSeriesCollection(series);
-    		final JFreeChart chart = ChartFactory.createXYLineChart("XY Series Demo", "X", "Y", collection, PlotOrientation.VERTICAL, true, true, false);
+    		final JFreeChart chart = ChartFactory.createXYLineChart(title, "falsePositive", "truePositive", collection, PlotOrientation.VERTICAL, true, true, false);
     		final ChartPanel chartPanel = new ChartPanel(chart);
     		chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
     		setContentPane(chartPanel);
@@ -67,7 +77,7 @@ public class ROCChart extends JFrame {
 
 	double calculateArea()	{
 		
-		double area = 0.0;
+		area = 0.0;
 
 		Collections.sort(data, new Point());
 		for (int i = 0; i < data.size() - 1; i++)	{

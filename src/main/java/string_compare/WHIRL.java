@@ -1,3 +1,5 @@
+package alignmentStudy;
+
 import java.util.*;
 import java.util.stream.*;
 

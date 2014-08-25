@@ -1,3 +1,5 @@
+package alignmentStudy;
+
 //program is comparing two documents: NVD and Bugtraq to find most similar objects
 //NVD document is stored in JSONArray arrayOne, and Bugtraq in JSONArray arrayTwo
 //the difference is that NVD and Bugtraq are using different time format, so
@@ -15,7 +17,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-public class CompareNvdAndBugtraqWithDiffFunctions	{
+public class CompareNVDAndBugtraqWithDiffFunctions	{
 	
 	private FileReader readerOne;
 	private FileReader readerTwo;
@@ -30,7 +32,7 @@ public class CompareNvdAndBugtraqWithDiffFunctions	{
 	private EntropyCalculation entropyTwo;
 	private ROC roc;
 
-	public CompareNvdAndBugtraqWithDiffFunctions(String[] args)	{
+	public CompareNVDAndBugtraqWithDiffFunctions(String[] args)	{
 
 		try {
 
@@ -140,6 +142,6 @@ public class CompareNvdAndBugtraqWithDiffFunctions	{
 			
 	public static void main (String[] args)	{
 		
-		new CompareNvdAndBugtraqWithDiffFunctions (args);
+		new CompareNVDAndBugtraqWithDiffFunctions (args);
 	}	
 }

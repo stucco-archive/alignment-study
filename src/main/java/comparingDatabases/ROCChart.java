@@ -1,3 +1,5 @@
+package alignmentStudy;
+
 import javax.swing.WindowConstants;
 import javax.swing.JFrame;
 import java.util.*;

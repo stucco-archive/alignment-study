@@ -1,3 +1,5 @@
+package alignmentStudy;
+
 import java.io.FileReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;

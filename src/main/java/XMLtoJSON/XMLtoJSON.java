@@ -1,10 +1,12 @@
+package alignmentStudy;
+
 //function takes two args: xml file that should be converted and 
 //output file name
 
 import java.io.*;
 
-import net.sf.json.JSON;
-import net.sf.json.xml.XMLSerializer;
+import net.sf.json-lib.JSON;
+import net.sf.json-lib.xml.XMLSerializer;
 
 import org.apache.commons.io.IOUtils;
 

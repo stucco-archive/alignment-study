@@ -1,3 +1,5 @@
+package alignmentStudy;
+
 //program is comparing two documents: NVD and Bugtraq to find most similar objectsd
 //based on description, published time, modified time, and references, vulnerable software
 //each property worth from 0.0 (have nothing in common) to 1.0 (the same)

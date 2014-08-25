@@ -1,3 +1,5 @@
+package alignmentStudy;
+
 //Porter Stemmer
 //taken and modified from 
 //http://chianti.ucsd.edu/svn/csplugins/trunk/soc/layla/WordCloudPlugin/trunk/WordCloud/src/cytoscape/csplugins/wordcloud/Stemmer.java

@@ -1,3 +1,5 @@
+package alignmentStudy;
+
 //in constructor function takes a file with stop words
 
 import java.io.BufferedReader;

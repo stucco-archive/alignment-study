@@ -1,3 +1,5 @@
+package alignmentStudy;
+
 //function return distance = 1.0 if absolute match, else 0 <= distance < 1.0
 //reference: 	1. 	An Adaptive String Comparator for Record Linkage
 //			William E. Yancey

@@ -1,3 +1,5 @@
+package alignmentStudy;
+
 import java.io.FileReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,7 +11,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-public class CompareNvdAndBugtraqDatabases	{
+public class CosineWithQGrams	{
 	private FileReader readerOne;
 	private FileReader readerTwo;
 	private JSONParser parserOne;
@@ -27,7 +29,7 @@ public class CompareNvdAndBugtraqDatabases	{
 	private RemoveStopWords rsw;
 	private DateTimeFormat dtf;
 
-	public CompareNvdAndBugtraqDatabases(String[] args)	{
+	public CosineWithQGrams(String[] args)	{
 
 			System.out.println("HERE");
 		try {
@@ -254,6 +256,6 @@ public class CompareNvdAndBugtraqDatabases	{
 	public static void main (String[] args)	{
 		
 		System.out.println("HERE");
-		new CompareNvdAndBugtraqDatabases (args);
+		new CosineWithQGrams (args);
 	}	
 }

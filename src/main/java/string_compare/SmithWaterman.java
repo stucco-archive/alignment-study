@@ -1,3 +1,5 @@
+package alignmentStudy;
+
 //function is aligning two strings and retern similarity score based on local alignment
 //it is an extension of edit distance and affine gap distance. 
 //mismatches in the middle are the most important

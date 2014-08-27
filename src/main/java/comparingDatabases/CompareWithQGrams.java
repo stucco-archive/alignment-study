@@ -10,12 +10,19 @@ import java.io.FileReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.util.*;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import net.sf.json.JSONSerializer;
+import net.sf.json.JSON;
+
+import org.apache.commons.io.IOUtils;
 
 public class CompareWithQGrams	{
 	
@@ -28,14 +35,14 @@ public class CompareWithQGrams	{
 	private Map<Integer, Map<String, Integer>>  mapOne; 	//size of JSON array
 	private Map<Integer, Map<String, Integer>>  mapTwo; 	//size of JSON array
 	private Map<String, Integer> allWords;
-	private TreeMap<Double, JSONObject[]> matchTree;
+	private TreeMap<Double, ArrayList<ObjectsSimilarity>> matchTree;
 	private char[] extraChars;	//used to remove extra chars from text and trim extra space
 	private int qNumber;
 	public CompareWithQGrams (JSONArray arrayOne, JSONArray arrayTwo, int qNumber)	{
 
 		objectOne = new JSONObject ();
 		objectTwo = new JSONObject ();
-		matchTree = new TreeMap<Double, JSONObject[]>(Collections.reverseOrder());
+		matchTree = new TreeMap<Double, ArrayList<ObjectsSimilarity>>(Collections.reverseOrder());
 		dtf = new DateTimeFormat();
 		rsw = new RemoveStopWords("StopWords.txt");
 		this.arrayOne = arrayOne;
@@ -47,9 +54,9 @@ public class CompareWithQGrams	{
 	void compare()	{
 			
 		compareDatabases();		//comparing descripiton
-		printMatchTree(10);		//print first 10 best matches
+	//	printMatchTree(5, "comparisonTable.txt");		//print first 5 best matches
 	}
-
+	
 	//function traversing arrays and comparing corresponding elements
 	void compareDatabases()	{
 		
@@ -58,14 +65,17 @@ public class CompareWithQGrams	{
 		for (int i = 0; i < arrayOne.size(); i++)	{
 			objectOne = (JSONObject) arrayOne.get(i);
 			for (int j = 0; j < arrayTwo.size(); j++)	{
+				ObjectsSimilarity os = new ObjectsSimilarity();
 				objectTwo = (JSONObject) arrayTwo.get(j);
-				descrSimilarity = compareDescriptions(objectOne.get("description"), objectTwo.get("description"));
-				publTimeSimilarity = compareTime (i, j, "publishedDate");	//specifying type of time to compare
-				modifTimeSimilarity = compareTime (i, j, "modifiedDate");
-				referenceSimilarity = compareReferences (objectOne.get("references"), objectTwo.get("references"));
-				softwareSimilarity = compareSoftware (objectOne.get("vulnerableSoftware"), objectTwo.get("Vulnerable"));
-				similarityScore = descrSimilarity + publTimeSimilarity + modifTimeSimilarity + referenceSimilarity + softwareSimilarity;
-				addToMatchTree (similarityScore, objectOne, objectTwo);
+				os.objectOne = objectOne;
+				os.objectTwo = objectTwo;
+				os.descriptionSimilarity = compareDescriptions(objectOne.get("description"), objectTwo.get("description"));
+				os.publTimeSimilarity = compareTime (i, j, "publishedDate");	//specifying type of time to compare
+				os.modifTimeSimilarity = compareTime (i, j, "modifiedDate");
+				os.referenceSimilarity = compareReferences (objectOne.get("references"), objectTwo.get("references"));
+				os.softwareSimilarity = compareSoftware (objectOne.get("vulnerableSoftware"), objectTwo.get("Vulnerable"));
+				similarityScore = os.descriptionSimilarity + os.publTimeSimilarity + os.modifTimeSimilarity + os.referenceSimilarity + os.softwareSimilarity;
+				addToMatchTree (similarityScore, os);
 			}
 		}
 	}
@@ -201,30 +211,66 @@ public class CompareWithQGrams	{
 		
 		return equals;
 	}
-				
-	void addToMatchTree (double similarityScore, JSONObject objectOne, JSONObject objectTwo)	{
+
+	void addToMatchTree (double similarityScore, ObjectsSimilarity os)	{
 	
-		JSONObject[] pair = {objectOne, objectTwo};
-		matchTree.put(similarityScore, pair);
+		if (matchTree.get(similarityScore) == null)	{
+			ArrayList<ObjectsSimilarity> l = new ArrayList<ObjectsSimilarity>();
+			l.add(os);
+			matchTree.put(similarityScore, l);
+		}
+		else	{
+			ArrayList<ObjectsSimilarity> l = new ArrayList<ObjectsSimilarity>(matchTree.get(similarityScore));
+			l.add(os);
+			matchTree.put(similarityScore, l);
+		}
 	}
 	
 	//printing "limit" elements starting in descending order		
-	void printMatchTree(int limit)	{
+	void printMatchTree(int limit, String outFile)	{
 		
-		JSONObject[] array = new JSONObject[2];
-		
-		int count = 0;
-		Iterator it = matchTree.entrySet().iterator();
-		while (it.hasNext())	{
-			Map.Entry entry = (Map.Entry) it.next();
-			array = (JSONObject[]) entry.getValue();
-			System.out.println("similarityScore  =  " + entry.getKey());
-			System.out.println("--objectOne-->   " + array[0]);
-			System.out.println("--objectTwo-->   " + array[1]);
-			System.out.println(count);
-			System.out.println();
-			count++;
-			if (count == limit) break;
+		try {
+                	FileWriter fw = new FileWriter(outFile, true);	//true is for appending	
+			BufferedWriter bw = new BufferedWriter(fw);
+
+			JSONSerializer js = new JSONSerializer();
+			JSONObject[] array = new JSONObject[2];
+			
+			boolean done = false;
+			int count = 0;
+			Iterator it = matchTree.entrySet().iterator();
+			while (it.hasNext() && !done)	{
+				Map.Entry entry = (Map.Entry) it.next();
+				ArrayList<ObjectsSimilarity> l = new ArrayList<ObjectsSimilarity>();
+				l = (ArrayList<ObjectsSimilarity>) entry.getValue();
+				for (int i = 0; i < l.size(); i++)	{
+					bw.write("QGrams: \n");
+					bw.write("---------------  \n");
+					bw.write("similarityScore  =  " + entry.getKey() + "\n");
+					bw.write("descriptionScore = " + l.get(i).descriptionSimilarity + "\n");
+					bw.write("publTimeSimilarity = " + l.get(i).publTimeSimilarity + "\n");
+					bw.write("modifTimeSimilarity = " + l.get(i).modifTimeSimilarity + "\n");
+					bw.write("referenceSimilarity = " + l.get(i).referenceSimilarity + "\n");
+					bw.write("softwareSimilarity = " + l.get(i).softwareSimilarity + "\n");
+					JSON jsonOne = js.toJSON(l.get(i).objectOne.toString());
+					bw.write("- objectOne: \n" + jsonOne.toString(2) + "\n");
+					JSON jsonTwo = js.toJSON(l.get(i).objectTwo.toString());
+					bw.write("- objectTwo: \n " + jsonTwo.toString(2) + "\n");
+					count++;
+					bw.write("\n****************************************************************\n\n");
+					if (count == limit) 	{
+						done = true;
+						break;	
+					}
+				}
+			}	
+			bw.close();
+		} catch (IOException e)	{
+			e.printStackTrace();
 		}
+	}
+
+	TreeMap<Double, ArrayList<ObjectsSimilarity>> getMatchTree()	{
+		return matchTree;
 	}
 }

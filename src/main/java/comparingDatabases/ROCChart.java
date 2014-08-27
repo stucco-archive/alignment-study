@@ -23,13 +23,12 @@ import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
 public class ROCChart extends JFrame {
-			
-	private XYSeries series;
-	private List data;
-	private String title;
+		
+	private XYSeriesCollection dataset;
+	private String applicationTitle;
 	private double area;
-
-	class Point implements Comparator<Point>	{
+	
+/*	class Point implements Comparator<Point>	{
 	
 		double x;
 		double y;
@@ -43,33 +42,37 @@ public class ROCChart extends JFrame {
 			return Double.compare(one.x, two.x);
 		}
 	}
-
-  	public ROCChart(String applicationTitle, String chartTitle) {
+*/
+  	public ROCChart(String applicationTitle) {
         	super(applicationTitle);
 
-		//series = new XYSeries(chartTitle);
-    		data = new ArrayList();
-		title = chartTitle;
+		dataset = new XYSeriesCollection();	
+		this.applicationTitle = applicationTitle;
+
+	//	series = new ArrayList<XYSeries>();
+	}
+						
+	void addNewChart(String title, ArrayList<Point> newData)	{
+		
+		calculateArea(newData);				
+		XYSeries series = new XYSeries(title + " area = " + area);
+		for (Point p : newData)	{
+			series.add(p.x, p.y);
+		}
+		dataset.addSeries(series);
 	}
 
-	void addData(double x, double y)	{
+//	void addData(double x, double y)	{
 		
 	//	series.add(x, y);
-		data.add(new Point(x, y));
+//		data.add(new Point(x, y));
 		
-	}
+//	}
 
 	void drawChart()	{
   						  
-		calculateArea();				
-		series = new XYSeries("Area = " + Double.toString(area));
-		for (Object point : data)	{
-			Point p = (Point) point;
-			series.add(p.x, p.y);
-		}
-		final XYSeriesCollection collection = new XYSeriesCollection(series);
-    		final JFreeChart chart = ChartFactory.createXYLineChart(title, "falsePositive", "truePositive", collection, PlotOrientation.VERTICAL, true, true, false);
-    		final ChartPanel chartPanel = new ChartPanel(chart);
+    		JFreeChart chart = ChartFactory.createXYLineChart(applicationTitle, "falsePositive", "truePositive", dataset, PlotOrientation.VERTICAL, true, true, false);
+    		ChartPanel chartPanel = new ChartPanel(chart);
     		chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
     		setContentPane(chartPanel);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -77,14 +80,14 @@ public class ROCChart extends JFrame {
  		setVisible(true);
 	}	
 
-	double calculateArea()	{
+	double calculateArea(ArrayList<Point> newData)	{
 		
 		area = 0.0;
 
-		Collections.sort(data, new Point());
-		for (int i = 0; i < data.size() - 1; i++)	{
-			Point p1 = (Point) data.get(i);
-			Point p2 = (Point) data.get(i + 1);
+		Collections.sort(newData, new Point());
+		for (int i = 0; i < newData.size() - 1; i++)	{
+			Point p1 = (Point) newData.get(i);
+			Point p2 = (Point) newData.get(i + 1);
 			area = area + ((p2.x - p1.x) * p2.y - ((p2.x - p1.x) * (p2.y - p1.y))/2.0); 
 		}
 		return area;

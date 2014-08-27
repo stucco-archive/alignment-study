@@ -5,8 +5,8 @@ package alignmentStudy;
 
 import java.io.*;
 
-import net.sf.json-lib.JSON;
-import net.sf.json-lib.xml.XMLSerializer;
+import net.sf.json.JSON;
+import net.sf.json.xml.XMLSerializer;
 
 import org.apache.commons.io.IOUtils;
 

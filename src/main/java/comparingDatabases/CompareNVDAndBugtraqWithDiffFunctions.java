@@ -16,8 +16,8 @@ import java.io.*;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-public class CompareNvdAndBugtraqWithDiffFunctions	{
+			
+public class CompareNVDAndBugtraqWithDiffFunctions	{
 	
 	private FileReader readerOne;
 	private FileReader readerTwo;
@@ -32,7 +32,7 @@ public class CompareNvdAndBugtraqWithDiffFunctions	{
 	private EntropyCalculation entropyTwo;
 	private ROC roc;
 
-	public CompareNvdAndBugtraqWithDiffFunctions(String[] args)	{
+	public CompareNVDAndBugtraqWithDiffFunctions(String[] args)	{
 
 		try {
 
@@ -155,6 +155,6 @@ public class CompareNvdAndBugtraqWithDiffFunctions	{
 			
 	public static void main (String[] args)	{
 		
-		new CompareNvdAndBugtraqWithDiffFunctions (args);
+		new CompareNVDAndBugtraqWithDiffFunctions (args);
 	}	
 }

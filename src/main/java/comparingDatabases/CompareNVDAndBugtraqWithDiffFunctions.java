@@ -17,7 +17,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-public class CompareNVDAndBugtraqWithDiffFunctions	{
+public class CompareNvdAndBugtraqWithDiffFunctions	{
 	
 	private FileReader readerOne;
 	private FileReader readerTwo;
@@ -32,10 +32,12 @@ public class CompareNVDAndBugtraqWithDiffFunctions	{
 	private EntropyCalculation entropyTwo;
 	private ROC roc;
 
-	public CompareNVDAndBugtraqWithDiffFunctions(String[] args)	{
+	public CompareNvdAndBugtraqWithDiffFunctions(String[] args)	{
 
 		try {
 
+			FileWriter fw = new FileWriter(new File ("ComparisonTable.txt"));
+			BufferedWriter bw = new BufferedWriter(fw);
 			readerOne = new FileReader (args[0]);
 			readerTwo = new FileReader (args[1]);
 			parserOne = new JSONParser ();
@@ -50,15 +52,18 @@ public class CompareNVDAndBugtraqWithDiffFunctions	{
 			double openPenalty = 1.0, extendPenalty = 0.7;
 			long duration, start;
 			int qNumber = 2;
-
+			ROCChart chart = new ROCChart("ROC");
+			
 			start = System.currentTimeMillis();
 			CompareWithWHIRL method1 = new CompareWithWHIRL(arrayOne, arrayTwo);
 			duration = System.currentTimeMillis() - start;
 			System.out.println("duration = " + duration);
 			matchTree = method1.getMatchTree();
 			roc = new ROC (matchTree, entropyOne.getEntropy(), entropyTwo.getEntropy(), "WHIRL");
-			areas.put("WHIRL", roc.getArea());
-			
+			chart.addNewChart("WHIRL", roc.getChartData());
+		//	areas.put("WHIRL", roc.getArea());
+		
+		//	duration.put("WHIRL", new Long(duration));
 			System.out.println(" **************************************************************** ");
 			System.out.println();
 
@@ -68,19 +73,20 @@ public class CompareNVDAndBugtraqWithDiffFunctions	{
 			System.out.println("duration = " + duration);
 			matchTree = method2.getMatchTree();
 			roc = new  ROC (matchTree, entropyOne.getEntropy(), entropyTwo.getEntropy(), "CosineAndQGrams");
-			areas.put("CosineAndQGrams", roc.getArea());
-			
+			chart.addNewChart("CosineAndQGrams", roc.getChartData());
+		//	areas.put("CosineAndQGrams", roc.getArea());
+		//	duration.put("CosineAndQGrams", duration);
 			System.out.println(" **************************************************************** ");
 			System.out.println();
-			
 			start = System.currentTimeMillis();
 			CompareWithDamerauLevenshtein method3 = new CompareWithDamerauLevenshtein(arrayOne, arrayTwo);
 			duration = System.currentTimeMillis() - start;
 			System.out.println("duration = " + duration);
 			matchTree = method3.getMatchTree();
 			roc = new ROC (matchTree, entropyOne.getEntropy(), entropyTwo.getEntropy(), "DamerauLevenshtein");
-			areas.put("DamerauLevenshtein", roc.getArea());
-			
+			chart.addNewChart("DamerauLevenshtein", roc.getChartData());
+		//	areas.put("DamerauLevenshtein", roc.getArea());
+		//	duration.put("DamerauLevenshtein", duration);
 			System.out.println(" **************************************************************** ");
 			System.out.println();
 		
@@ -90,8 +96,9 @@ public class CompareNVDAndBugtraqWithDiffFunctions	{
 			System.out.println("duration = " + duration);
 			matchTree = method4.getMatchTree();
 			roc = new ROC (matchTree, entropyOne.getEntropy(), entropyTwo.getEntropy(), "JaroWinkler");
-			areas.put("JaroWinkler", roc.getArea());
-			
+			chart.addNewChart("JaroWinkler", roc.getChartData());
+		//	areas.put("JaroWinkler", roc.getArea());
+		//	duration.put("JaroWinkler", duration);
 			System.out.println(" **************************************************************** ");
 			System.out.println();
 		
@@ -101,8 +108,9 @@ public class CompareNVDAndBugtraqWithDiffFunctions	{
 			System.out.println("duration = " + duration);
 			matchTree = method5.getMatchTree();
 			roc = new ROC (matchTree, entropyOne.getEntropy(), entropyTwo.getEntropy(), "QGrams");
-			areas.put("QGrams", roc.getArea());
-			
+			chart.addNewChart("QGrams", roc.getChartData());
+		//	areas.put("QGrams", roc.getArea());
+		//	duration.put("QGrams", duration);
 			System.out.println(" **************************************************************** ");
 			System.out.println();
 		
@@ -112,8 +120,9 @@ public class CompareNVDAndBugtraqWithDiffFunctions	{
 			System.out.println("duration = " + duration);
 			matchTree = method6.getMatchTree();
 			roc = new ROC (matchTree, entropyOne.getEntropy(), entropyTwo.getEntropy(), "SmithWaterman");
-			areas.put("SmithWaterman", roc.getArea());
-			
+			chart.addNewChart("SmithWaterman", roc.getChartData());
+		//	areas.put("SmithWaterman", roc.getArea());
+		//	duration.put("SmithWaterman", duration);
 			System.out.println(" **************************************************************** ");
 			System.out.println();
 		
@@ -123,14 +132,18 @@ public class CompareNVDAndBugtraqWithDiffFunctions	{
 			System.out.println("duration = " + duration);
 			matchTree = method7.getMatchTree();
 			roc = new ROC (matchTree, entropyOne.getEntropy(), entropyTwo.getEntropy(), "AffineGap");
-			areas.put("AffineGap", roc.getArea());
-			
+			chart.addNewChart("AffineGap", roc.getChartData());
+		//	areas.put("AffineGap", roc.getArea());
+		//	duration.put("AffineGap", duration);
 			System.out.println(" **************************************************************** ");
 			System.out.println();
-			
-			for (String key : areas.keySet())	
-				System.out.println(key + ":	area = " + areas.get(key)); 
+		//	for (String key : areas.keySet())	
+		//		System.out.println(key + ":	area = " + areas.get(key)); 
+		//
+		//	for (String key : areas.keySet())	
+		//		System.out.println(key + ":	area = " + duration.get(key)); 
 		
+			chart.drawChart();
 		} catch (FileNotFoundException e)	{
 			e.printStackTrace();
 		} catch (IOException e)		{
@@ -142,6 +155,6 @@ public class CompareNVDAndBugtraqWithDiffFunctions	{
 			
 	public static void main (String[] args)	{
 		
-		new CompareNVDAndBugtraqWithDiffFunctions (args);
+		new CompareNvdAndBugtraqWithDiffFunctions (args);
 	}	
 }

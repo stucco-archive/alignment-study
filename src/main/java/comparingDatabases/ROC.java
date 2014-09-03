@@ -1,20 +1,8 @@
 package alignmentStudy;
 
-import java.io.FileReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.BufferedWriter;
 import java.util.*;
 
 import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import net.sf.json.JSONSerializer;
-import net.sf.json.JSON;
 
 public class ROC {
 
@@ -22,21 +10,9 @@ public class ROC {
 	private JSONObject entropyTwo;
 	private JSONObject entropyAverage;
 	private TreeMap<Double, ArrayList<ObjectsSimilarity>> matchTree;
-//	private List chartData;
 	private ArrayList<Point> chartData;
-//	private ROCChart roc;
-	private double entropySumOne;
-	private double entropySumTwo;
-	private double entropyTotal;
-	private double threshold;
-	private double area;
-	private double maxKey;
-	private double w1, w2, w3, w4, w5;
-	private int truePositive;
-	private int falsePositive;
-	private int lessTruePositive;
-	private int lessFalsePositive;
-	private int count;
+	private double entropyTotal, threshold, area,  maxKey;
+	private int truePositive, falsePositive, lessTruePositive, lessFalsePositive, count;
 	
 	public ROC (TreeMap<Double, ArrayList<ObjectsSimilarity>> matchTree, JSONObject entropyOne, JSONObject entropyTwo, String functionName)	{
 		
@@ -46,12 +22,10 @@ public class ROC {
 		this.entropyTwo = entropyTwo;
 		this.matchTree = matchTree;
 	
-	//	calculateEntropyAverage();
-	//	calculateEntropyTotal();
-	//	setCount();
-		calculateMaxKey();
+		calculateEntropyAverage();
+		calculateEntropyTotal();
+	//	calculateMaxKey();
 		setThreshold();
-		System.out.println("area = " + area);
 	}
 	
 	void calculateEntropyAverage()	{
@@ -68,7 +42,7 @@ public class ROC {
 			entropyAverage.put("references", (new Double (entropyOne.get("references").toString()) + 
 								new Double (entropyTwo.get("references").toString()))/2.0);
 		//	entropyAverage.put("idAndClass", (new Double (entropyOne.get("idAndClassSimilarity").toString()) + 
-		//						new Double (entropyTwo.get("idAndClassSimilarity").toString())/2.0);
+		//						new Double (entropyTwo.get("idAndClassSimilarity").toString()))/2.0);
 		} catch	(NumberFormatException e)	{
 			e.printStackTrace();
 		}
@@ -84,48 +58,23 @@ public class ROC {
 
 	}
 
-	void setCount()	{
-
-		count = 0;
-
-		for (Object key : matchTree.keySet())	{
-			ArrayList<ObjectsSimilarity> list = (ArrayList<ObjectsSimilarity>) matchTree.get(new Double (key.toString()));
-			count = count + ((ArrayList<ObjectsSimilarity>) matchTree.get(new Double (key.toString()))).size();
-		}												
-		System.out.println("count = " + count);
-	}
-
 	void calculateMaxKey()	{
 		
 		maxKey = 0;
-
-		for (Object key : matchTree.keySet())	{
-			ArrayList<ObjectsSimilarity> list = (ArrayList<ObjectsSimilarity>) matchTree.get(new Double (key.toString()));
-			for (ObjectsSimilarity os : list)		{
-				if (maxKey < os.descriptionSimilarity)
-					maxKey = os.descriptionSimilarity;
-			}
+				
+		for (Double key : matchTree.keySet())	{
+			if (maxKey < (double) key)	maxKey = key;
 		}
-	
-	//	for (Object key : matchTree.keySet())	{
-	//		if (maxKey < (double) key)	maxKey = (double) key;
-	//	}
 
 	}
 
 	void setThreshold()	{
+	
+		System.out.println("maxKey = " + maxKey);	
+		System.out.println("entropyTotal = " + entropyTotal);	
 		
-	//	for (double i = 50.0; i <= 100.0; i = i + 5.0)	{ 
-	//		threshold = (entropyTotal/100.0) * i;
-	//		System.out.println("threshold = " + threshold);
-	//		calculateROC();	
-	//	}
-
-	//	for (double i = 0.0; i <= 1.0; i = i + 0.1)	{
-		//	threshold = (i/entropyTotal) * 100;
-		for (double i = 0.0; i <= maxKey; i = i + 0.1)	{
+		for (double i = 0.0; i <= entropyTotal; i = i + 0.1)	{
 			threshold = i;
-	//		System.out.println("threshold = " + threshold);
 			calculateROC();	
 		}
 	}
@@ -147,19 +96,18 @@ public class ROC {
 														
 		chartData.add(new Point(((double)falsePositive/(double)(falsePositive + lessFalsePositive)),
 					(double)truePositive/(double)(truePositive + lessTruePositive)));  
-	//	System.out.println("truePositive = " + truePositive); 
-	//	System.out.println("falsePositive = " + falsePositive); 
+		System.out.println();
 	}
 	
 	void calculateChartData(ObjectsSimilarity os)	{
 
 		double similarityTotal = 0.0;																										
-		similarityTotal = similarityTotal + os.descriptionSimilarity;// * (double)entropyAverage.get("description") * w1;
-	//	similarityTotal = similarityTotal + os.publTimeSimilarity;// * (double)entropyAverage.get("publishedDate") * w2;
-	//	similarityTotal = similarityTotal + os.modifTimeSimilarity;// * (double)entropyAverage.get("modifiedDate") * w3;
-	//	similarityTotal = similarityTotal + os.referenceSimilarity;// * (double)entropyAverage.get("references") * w4;
-	//	similarityTotal = similarityTotal + os.softwareSimilarity;// * (double)entropyAverage.get("vulnerableSoftware") * w5;
-	//	similarityTotal = similarityTotal + os.idAndClassSimilarity * (double)entropyAverage.get("idAndClass") * w6;
+		similarityTotal = similarityTotal + os.descriptionSimilarity * new Double (entropyAverage.get("description").toString());
+		similarityTotal = similarityTotal + os.publTimeSimilarity * new Double (entropyAverage.get("publishedDate").toString());
+		similarityTotal = similarityTotal + os.modifTimeSimilarity * new Double (entropyAverage.get("modifiedDate").toString());
+		similarityTotal = similarityTotal + os.referenceSimilarity * new Double (entropyAverage.get("references").toString());
+		similarityTotal = similarityTotal + os.softwareSimilarity * new Double (entropyAverage.get("vulnerableSoftware").toString());
+	//	similarityTotal = similarityTotal + os.idAndClassSimilarity * new Double (entropyAverage.get("idAndClass").toString());
 	//	System.out.println("similarityTotal = " + similarityTotal);
 	//	if ((similarityTotal/entropyTotal) * 100 >= threshold)	{
 		if (similarityTotal >= threshold)	{
@@ -194,10 +142,12 @@ public class ROC {
 	}
 		
 	ArrayList<Point> getChartData()	{
+	
 		return chartData;
 	}
 
 	double getArea()	{
+	
 		return area;
 	}
 }

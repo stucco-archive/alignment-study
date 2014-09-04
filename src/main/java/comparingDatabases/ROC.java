@@ -70,9 +70,6 @@ public class ROC {
 
 	void setThreshold()	{
 	
-		System.out.println("maxKey = " + maxKey);	
-		System.out.println("entropyTotal = " + entropyTotal);	
-		
 		for (double i = 0.0; i <= entropyTotal; i = i + 0.1)	{
 			threshold = i;
 			calculateROC();	
@@ -81,7 +78,6 @@ public class ROC {
 
 	void calculateROC()	{
 		
-		double similarity;
 		truePositive = 0;
 		falsePositive = 0;
 		lessTruePositive = 0;
@@ -96,7 +92,6 @@ public class ROC {
 														
 		chartData.add(new Point(((double)falsePositive/(double)(falsePositive + lessFalsePositive)),
 					(double)truePositive/(double)(truePositive + lessTruePositive)));  
-		System.out.println();
 	}
 	
 	void calculateChartData(ObjectsSimilarity os)	{
@@ -108,8 +103,6 @@ public class ROC {
 		similarityTotal = similarityTotal + os.referenceSimilarity * new Double (entropyAverage.get("references").toString());
 		similarityTotal = similarityTotal + os.softwareSimilarity * new Double (entropyAverage.get("vulnerableSoftware").toString());
 	//	similarityTotal = similarityTotal + os.idAndClassSimilarity * new Double (entropyAverage.get("idAndClass").toString());
-	//	System.out.println("similarityTotal = " + similarityTotal);
-	//	if ((similarityTotal/entropyTotal) * 100 >= threshold)	{
 		if (similarityTotal >= threshold)	{
 			if (os.objectTwo.get("CVE").toString().length() > 13)	{
 				boolean positive = false;

@@ -1,26 +1,16 @@
 package alignmentStudy;
 
-import javax.swing.WindowConstants;
-import javax.swing.JFrame;
 import java.util.*;
 
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PiePlot3D;
-import org.jfree.data.general.DefaultPieDataset;
-import org.jfree.data.general.PieDataset;
-import org.jfree.util.Rotation;
+import javax.swing.WindowConstants;
+import javax.swing.JFrame;
 
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
 
 public class ROCChart extends JFrame {
 		
@@ -28,28 +18,12 @@ public class ROCChart extends JFrame {
 	private String applicationTitle;
 	private double area;
 	
-/*	class Point implements Comparator<Point>	{
-	
-		double x;
-		double y;
-		Point() {};
-		
-		Point(double x, double y)	{
-			this.x = x;
-			this.y = y;	
-		}
-		public int compare(Point one, Point two)	{
-			return Double.compare(one.x, two.x);
-		}
-	}
-*/
   	public ROCChart(String applicationTitle) {
-        	super(applicationTitle);
+        	
+		super(applicationTitle);
 
 		dataset = new XYSeriesCollection();	
 		this.applicationTitle = applicationTitle;
-
-	//	series = new ArrayList<XYSeries>();
 	}
 						
 	void addNewChart(String title, ArrayList<Point> newData)	{
@@ -61,13 +35,6 @@ public class ROCChart extends JFrame {
 		}
 		dataset.addSeries(series);
 	}
-
-//	void addData(double x, double y)	{
-		
-	//	series.add(x, y);
-//		data.add(new Point(x, y));
-		
-//	}
 
 	void drawChart()	{
   						  

@@ -38,8 +38,6 @@ public class AffineGap {
 		
 		matricesInitialization();
 		allignmentCalculation();
-	//	backtraceCalculation();
-	//	printAlignedStrings();
 		distance = D[length1][length2];		//distance is the very last element of D array
 		
 		return normalized(distance);

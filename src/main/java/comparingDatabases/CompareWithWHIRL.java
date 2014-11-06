@@ -35,7 +35,6 @@ public class CompareWithWHIRL extends Comparison implements ComparisonMethod {
 				ObjectsSimilarity os = new ObjectsSimilarity();
 				os.objectOne = (JSONObject) arrayOne.get(i);
 				os.objectTwo = (JSONObject) arrayTwo.get(j);
-				
 				os.descriptionSimilarity = compareDescription(i, j);	 //sending index of corresponding objects to compare
 				os.softwareSimilarity = compareSoftware (os.objectOne.get("vulnerableSoftware"), os.objectTwo.get("Vulnerable"));
 				os.idAndClassSimilarity = 0.0;	//compareIdAndClass(i, j);

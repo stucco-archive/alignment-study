@@ -6,17 +6,14 @@ public class QGrams	{
 	
 	private Set<String> setOne;
 	private Set<String> setTwo;
-//	private Set<String> total;
 	private String s1;
 	private String s2;
+	private double distance;
 	private int length1;	
 	private int length2;	
 	private int q;
-	private double distance;
 	private int substringCount;
 	private int overlapSubstringCount;
-		
-
 
 	//functions to initialize private variables & call distance computing functions
 	// returning distance uaing Jaccord method Normalization method, where 0 means full overla and 1 is no overlap 
@@ -29,7 +26,6 @@ public class QGrams	{
 
 		setOne = new HashSet<String>();
 		setTwo = new HashSet<String>();
-        //        total = new HashSet<String>();
 		s1 = new String (str1);
                 s2 = new String (str2);
 		
@@ -56,29 +52,24 @@ public class QGrams	{
 
 		for (int i = 0; i <= length1 - q; i++)	{
 			setOne.add(s1.substring(i, i + q));
-		//	total.add(s1.substring(i, i + q));
 		}
 													
 		for (int j = 0; j <= length2 - q; j++)	{
 			setTwo.add(s2.substring(j, j + q));
-		//	total.add(s2.substring(j, j + q));
 		}
 	}
-
+												
 	//calculating distance using q-grams
 	void calculateDistance()	{
-		
+									
 		for (String substringOne : setOne)	{
-			for (String substringTwo : setTwo)	{
-				if (substringOne.equals(substringTwo))
+				if (setTwo.contains(substringOne))
 					overlapSubstringCount++;
-			}
-		}
+		}							
 
 		substringCount = (length1 - q) + (length2 - q) + 2 - overlapSubstringCount; 
-			//= total.size();
 		distance = (double)overlapSubstringCount/(substringCount - overlapSubstringCount);	
-	}
+	}												
 }
 
 

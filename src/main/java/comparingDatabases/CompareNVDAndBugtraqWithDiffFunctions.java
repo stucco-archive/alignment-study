@@ -11,7 +11,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.io.*;
-
+				
+import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -33,7 +34,6 @@ public class CompareNVDAndBugtraqWithDiffFunctions	{
 	public CompareNVDAndBugtraqWithDiffFunctions(String[] args)	{
 
 		try {
-
 			readerOne = new FileReader (args[0]);
 			readerTwo = new FileReader (args[1]);
 			parserOne = new JSONParser ();
@@ -45,7 +45,12 @@ public class CompareNVDAndBugtraqWithDiffFunctions	{
 			ROCChart chart = new ROCChart("ROC");
 			matchTree = new TreeMap<Double, ArrayList<ObjectsSimilarity>>();
 			duration = new HashMap<String, Long>();	
-			
+													
+			JSONObject obj =  new JSONObject();
+			obj = (JSONObject) entropyTwo.getEntropy();					
+				for (Object s : obj.keySet())					
+					System.out.println(s.toString() + " + " + obj.get(s.toString()));		
+	
 			long start;
 			double openPenalty = 1.0, extendPenalty = 0.7;	//parameters for Affine Gap
 			int qNumber = 2;	//paremeter for QGrams algorith
@@ -55,7 +60,7 @@ public class CompareNVDAndBugtraqWithDiffFunctions	{
 			start = System.currentTimeMillis();
 			methods.add (new CompareWithWHIRL(arrayOne, arrayTwo));
 			duration.put("WHIRL", System.currentTimeMillis() - start);
-
+		
 			start = System.currentTimeMillis();
 			methods.add (new CompareWithCosineAndQGrams(arrayOne, arrayTwo));
 			duration.put("Cosine + QGrams", System.currentTimeMillis() - start);

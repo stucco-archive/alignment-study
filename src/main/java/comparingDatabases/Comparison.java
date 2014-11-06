@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.util.*;
+import java.net.*;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -17,13 +18,11 @@ public class Comparison {
 
 	private  DateFormat df;
 	private  RemoveStopWords rsw;
-	public char[] extraChars;	//used to remove extra chars from text and trim extra space
 
 	public Comparison()	{
 
 		df = new DateFormat();
 		rsw = new RemoveStopWords("StopWords.txt");
-		extraChars = ",.:;[]?!1234567890<>[]{}()*&^%$#@/+=_-''".toCharArray();	//array of chars to be removed, could be modified
 	}
 
 	//returns 0.0 if time is not specifyed in both objects
@@ -50,6 +49,16 @@ public class Comparison {
 		JSONArray a1 = (JSONArray) referenceListOne;
 		JSONArray a2 = (JSONArray) referenceListTwo;
 
+		System.out.println("array1 = " + a1);
+		for (int i = 0; i < a1.size(); i++)	{
+			System.out.println(a1.get(i));
+		}
+
+		System.out.println("array2 = " + a2);
+		for (int i = 0; i < a2.size(); i++)	{
+			System.out.println(a2.get(i));
+		}							
+	
 		total = a1.size() + a2.size();
 
 		for (int i = 0; i < a1.size(); i ++)	{
@@ -60,11 +69,23 @@ public class Comparison {
 				}
 			}
 		}
+
+		System.out.println("Similarity = " + (double)(match)/(double)total);
 		return (double)(match)/(double)total;
 	}
+
+	public double compareSoftware (Object softwareListOne, Object softwareListTwo)	{	
 						
-	public double compareSoftware (Object softwareListOne, Object softwareListTwo)	{
-		
+		if (softwareListOne == null | softwareListTwo == null) return 0.0;
+	
+		SmithWaterman sw = new SmithWaterman();
+												
+		return sw.smithWatermanScore(softwareListOne.toString(), softwareListTwo.toString());
+	}
+
+						
+	public double compareSoftwareExactly (Object softwareListOne, Object softwareListTwo)	{	
+
 		if (softwareListOne == null | softwareListTwo == null)	return 0.0;
 		int match = 0, total;
 		
@@ -110,26 +131,13 @@ public class Comparison {
 		return equals;
 	}
 
+
 	//removing unnecessary chars from words
-	//array of unnecessary chars can be modified in constructor
 	public String removeChars(String text)	{
 
-		char[] myText = text.toCharArray();
-		String newText = new String();
-		boolean next;
-
-		for (int i = 0; i < myText.length; i++)	{
-			next = false;
-			for (int j = 0; j < extraChars.length; j++)	{
-				if (myText[i] == extraChars[j])	{
-					next = true;
-					break;
-				}
-			}
-			if (next == false)	newText = newText + myText[i]; 
-		}
-
-		return newText;
+		text = text.replaceAll("\\W", "");	//removes nonalphabetic chars
+		
+		return text;
 	}
 				
 	public boolean isAStopWord (String word)	{

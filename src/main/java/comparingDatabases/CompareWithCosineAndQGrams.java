@@ -9,14 +9,16 @@ import org.json.simple.parser.ParseException;
 				
 public class CompareWithCosineAndQGrams extends Comparison implements ComparisonMethod {
 
-	private CosineAndQGrams caqgForDescription;
+//	private CosineAndQGrams caqgForDescription;
+//	private CosineAndQGrams caqgForSoftware;
+	private CosineAndQGrams caqg;
 	private JSONArray arrayOne;
 	private JSONArray arrayTwo;
 	private TreeMap<Double, ArrayList<ObjectsSimilarity>> matchTree;
 
 	public CompareWithCosineAndQGrams (JSONArray arrayOne, JSONArray arrayTwo)	{
 
-		caqgForDescription = new CosineAndQGrams();
+		caqg = new CosineAndQGrams();
 		matchTree = new TreeMap<Double, ArrayList<ObjectsSimilarity>>(Collections.reverseOrder());
 		
 		this.arrayOne = arrayOne;
@@ -28,47 +30,32 @@ public class CompareWithCosineAndQGrams extends Comparison implements Comparison
 	//function traversing arrays and comparing corresponding elements
 	public void compareDatabases()	{
 		
-		setCosineAndQGramsMapsForDescriptions();
-		
 		for (int i = 0; i < arrayOne.size(); i++)	{
 			for (int j = 0; j < arrayTwo.size(); j++)	{
 				ObjectsSimilarity os = new ObjectsSimilarity();
 				os.objectOne = (JSONObject) arrayOne.get(i);
 				os.objectTwo = (JSONObject) arrayTwo.get(j);
-				
-				os.descriptionSimilarity = compareDescription (i, j);	 //sending index of corresponding objects to compare
+				os.descriptionSimilarity = compareDescription (os.objectOne.get("description"), os.objectTwo.get("description"));	 
 				os.softwareSimilarity = compareSoftware (os.objectOne.get("vulnerableSoftware"), os.objectTwo.get("Vulnerable"));
 				os.idAndClassSimilarity = 0.0;	//compareIdAndClass(i, j);
 				os.publTimeSimilarity = compareDate (os.objectOne.get("publishedDate"), os.objectTwo.get("publishedDate"));	
 				os.modifTimeSimilarity = compareDate (os.objectOne.get("modifiedDate"), os.objectTwo.get("modifiedDate"));
 				os.referenceSimilarity = compareReferences (os.objectOne.get("references"), os.objectTwo.get("references"));
 				
+				System.out.println(os.descriptionSimilarity);
+	
 				addToMatchTree(matchTree, os);	
 			}
 		}
 	}
 	
-	void setCosineAndQGramsMapsForDescriptions()	{
-	
-		Map<Integer, String> textFieldOne = new HashMap<Integer, String>(); 	
-		Map<Integer, String> textFieldTwo = new HashMap<Integer, String>(); 	
-		
-		for (int i = 0; i < arrayOne.size(); i++)	{
-			if (((JSONObject)arrayOne.get(i)).get("description") != null)
-			textFieldOne.put(i, ((JSONObject)arrayOne.get(i)).get("description").toString());
-		}
-		for (int i = 0; i < arrayTwo.size(); i++)	{
-			if (((JSONObject)arrayTwo.get(i)).get("description") != null)
-			textFieldTwo.put(i, ((JSONObject)arrayTwo.get(i)).get("description").toString());
-			
-		}
-		caqgForDescription.setTextMaps(textFieldOne, textFieldTwo);
-	}								
-
 	public double compareDescription (Object descriptionOne, Object descriptionTwo)	{
-																					
+		
+		if (descriptionOne == null || descriptionTwo == null)	return 0.0;	
+	
 		//sending index of corresponding objects to compare their description fields
-		return caqgForDescription.getSimilarityScore(new Integer (descriptionOne.toString()), new Integer (descriptionTwo.toString()));	 
+																			
+		return caqg.getSimilarityScore(descriptionOne.toString(), descriptionTwo.toString());	 
 	}
 	
 	public TreeMap<Double, ArrayList<ObjectsSimilarity>> getMatchTree()	{

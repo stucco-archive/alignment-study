@@ -141,18 +141,18 @@ public class AffineGap {
 		
 	}
 
-	void printAlignedStrings()	{
+	public void printAlignedStrings()	{
 		
 		System.out.println(s1Aligned);
 		System.out.println(s2Aligned);
 	}
 
-	String getAlignedStrOne()      {
+	public String getAlignedStrOne()      {
 
               return s1Aligned;
       	}
  
-      	String getAlignedStrTwo()      {
+      	public String getAlignedStrTwo()      {
 
               return s2Aligned;
       	}

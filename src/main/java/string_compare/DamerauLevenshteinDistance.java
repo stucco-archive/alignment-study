@@ -9,7 +9,7 @@ public class DamerauLevenshteinDistance	{
 	private int [][] table;
 	
 	//initializing private variables; calling distance computing functions
-	double damerauLevenshteinDistance (String str1, String str2)	{
+	public double damerauLevenshteinDistance (String str1, String str2)	{
 			
 		if (str1.equals(str2))	return 1.0;	//checking if strings are the same
 		if ((length1 = str1.length()) == 0 | (length2 = str2.length()) == 0)	return 0.0;

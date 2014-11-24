@@ -17,7 +17,7 @@ public class SmithWaterman {
 	private int maxI; 	//i index of the largest score in the metrix
 	private int maxJ;	//j index of te largest score int he metrix
 	
-	double smithWatermanScore (String str1, String str2)	{
+	public double smithWatermanScore (String str1, String str2)	{
 		
 		if (str1.equals(str2))	 return 1.0;       //checking if strings are the     same           
 		
@@ -129,13 +129,13 @@ public class SmithWaterman {
 		}	
 	}
 	
-	void printAlignment ()	{
+	public void printAlignment ()	{
 	
 		System.out.println(s1Aligned);
 		System.out.println(s2Aligned);
 	}
 
-	void printMatrix ()	{
+	public void printMatrix ()	{
 
 		for (int i = 0; i < length1; i++)	{
 			for (int j = 0; j < length2; j++)	{
@@ -145,12 +145,12 @@ public class SmithWaterman {
 		}
 	}
 
-	String getAlignedStrOne ()	{
+	public String getAlignedStrOne ()	{
 		
 		return s1Aligned;
 	}
 
-	String getAlignedStrTwo ()	{
+	public String getAlignedStrTwo ()	{
 		
 		return s2Aligned;
 	}

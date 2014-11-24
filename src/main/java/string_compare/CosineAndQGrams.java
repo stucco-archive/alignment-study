@@ -14,7 +14,7 @@ public class CosineAndQGrams extends Comparison {
 	}
 
 	//removing suffixes from all words 
-	void  stemObjectAndAddToAllWordsMap (String s, Map<String, Integer> map)	{
+	public void  stemObjectAndAddToAllWordsMap (String s, Map<String, Integer> map)	{
 		
 		String[] str = s.split(" ");
 		String substring, key;
@@ -41,7 +41,7 @@ public class CosineAndQGrams extends Comparison {
 	}
 
 	//compares descriptions using WHIRL or cosine similarity
-	double getSimilarityScore (String s1, String s2)	{
+	public double getSimilarityScore (String s1, String s2)	{
 											
 		Map<String, Integer> mapOne = new HashMap <String, Integer>(); 	
 		Map<String, Integer> mapTwo = new HashMap <String, Integer>(); 	

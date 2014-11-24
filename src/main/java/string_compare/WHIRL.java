@@ -79,7 +79,7 @@ public class WHIRL extends Comparison {
 
 
 	//compares descriptions using WHIRL or cosine similarity
-	double getSimilarityScore (int i, int j)	{
+	public double getSimilarityScore (int i, int j)	{
 
 		if (mapOne.get(i) == null | mapTwo.get(j) == null)	return 0.0;
 

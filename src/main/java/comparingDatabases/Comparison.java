@@ -49,12 +49,10 @@ public class Comparison {
 		JSONArray a1 = (JSONArray) referenceListOne;
 		JSONArray a2 = (JSONArray) referenceListTwo;
 
-		System.out.println("array1 = " + a1);
 		for (int i = 0; i < a1.size(); i++)	{
 			System.out.println(a1.get(i));
 		}
 
-		System.out.println("array2 = " + a2);
 		for (int i = 0; i < a2.size(); i++)	{
 			System.out.println(a2.get(i));
 		}							
@@ -70,7 +68,6 @@ public class Comparison {
 			}
 		}
 
-		System.out.println("Similarity = " + (double)(match)/(double)total);
 		return (double)(match)/(double)total;
 	}
 

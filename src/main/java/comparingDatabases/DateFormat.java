@@ -7,7 +7,7 @@ public class DateFormat {
 
 	private Date date;
 	
-	long formatNVDDate (String time)	{
+	public long formatNVDDate (String time)	{
 			
 		try {
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS-SS:SS");
@@ -19,7 +19,7 @@ public class DateFormat {
   		return date.getTime();	
 	}
 
-	long formatBugtraqDate (String time)	{ 
+	public long formatBugtraqDate (String time)	{ 
 
 		try {
 			SimpleDateFormat df = new SimpleDateFormat("MMM dd yyyy hh:mma");

@@ -46,17 +46,9 @@ public class Comparison {
 		
 		int match = 0, total = 0;
 												
-		JSONArray a1 = (JSONArray) referenceListOne;
-		JSONArray a2 = (JSONArray) referenceListTwo;
+		ArrayList a1 = (ArrayList) referenceListOne;
+		ArrayList a2 = (ArrayList) referenceListTwo;
 
-		for (int i = 0; i < a1.size(); i++)	{
-			System.out.println(a1.get(i));
-		}
-
-		for (int i = 0; i < a2.size(); i++)	{
-			System.out.println(a2.get(i));
-		}							
-	
 		total = a1.size() + a2.size();
 
 		for (int i = 0; i < a1.size(); i ++)	{

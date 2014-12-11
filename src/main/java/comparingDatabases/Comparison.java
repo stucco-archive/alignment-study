@@ -46,12 +46,9 @@ public class Comparison {
 		
 		int match = 0, total = 0;
 												
-<<<<<<< HEAD
 	//	JSONArray a1 = (JSONArray) referenceListOne;
 	//	JSONArray a2 = (JSONArray) referenceListTwo;
 	
-=======
->>>>>>> 69610843cdf68b21897b21c02a02af52bfb08757
 		ArrayList a1 = (ArrayList) referenceListOne;
 		ArrayList a2 = (ArrayList) referenceListTwo;
 

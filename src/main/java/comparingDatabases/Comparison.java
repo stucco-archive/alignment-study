@@ -22,7 +22,7 @@ public class Comparison {
 	public Comparison()	{
 
 		df = new DateFormat();
-		rsw = new RemoveStopWords("StopWords.txt");
+		rsw = new RemoveStopWords("resources/StopWords.txt");
 	}
 
 	//returns 0.0 if time is not specifyed in both objects
@@ -46,11 +46,11 @@ public class Comparison {
 		
 		int match = 0, total = 0;
 												
-	//	JSONArray a1 = (JSONArray) referenceListOne;
-	//	JSONArray a2 = (JSONArray) referenceListTwo;
+		JSONArray a1 = (JSONArray) referenceListOne;
+		JSONArray a2 = (JSONArray) referenceListTwo;
 	
-		ArrayList a1 = (ArrayList) referenceListOne;
-		ArrayList a2 = (ArrayList) referenceListTwo;
+	//	ArrayList a1 = (ArrayList) referenceListOne;
+	//	ArrayList a2 = (ArrayList) referenceListTwo;
 
 		total = a1.size() + a2.size();
 

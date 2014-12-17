@@ -2,10 +2,7 @@ package alignmentStudy;
 
 import java.util.*;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.*;
 
 public class CompareWithWHIRL extends Comparison implements ComparisonMethod {
 
@@ -26,39 +23,67 @@ public class CompareWithWHIRL extends Comparison implements ComparisonMethod {
 	}
 	
 	//function traversing arrays and comparing corresponding elements
-	public void compareDatabases()	{
+	public void compareDatabases(){
 		
-		setWhirlMapsForDescriptions();
-		
-		for (int i = 0; i < arrayOne.size(); i++)	{
-			for (int j = 0; j < arrayTwo.size(); j++)	{
-				ObjectsSimilarity os = new ObjectsSimilarity();
-				os.objectOne = (JSONObject) arrayOne.get(i);
-				os.objectTwo = (JSONObject) arrayTwo.get(j);
-				os.descriptionSimilarity = compareDescription(i, j);	 //sending index of corresponding objects to compare
-				os.softwareSimilarity = compareSoftware (os.objectOne.get("vulnerableSoftware"), os.objectTwo.get("Vulnerable"));
-				os.idAndClassSimilarity = 0.0;	//compareIdAndClass(i, j);
-				os.publTimeSimilarity = compareDate (os.objectOne.get("publishedDate"), os.objectTwo.get("publishedDate"));	
-				os.modifTimeSimilarity = compareDate (os.objectOne.get("modifiedDate"), os.objectTwo.get("modifiedDate"));
-				os.referenceSimilarity = compareReferences (os.objectOne.get("references"), os.objectTwo.get("references"));
+		try {							
+			setWhirlMapsForDescriptions();
+
+			for (int i = 0; i < arrayOne.length(); i++)	{
+				for (int j = 0; j < arrayTwo.length(); j++)	{
+					ObjectsSimilarity os = new ObjectsSimilarity();
+					os.objectOne = arrayOne.getJSONObject(i);
+					os.objectTwo = arrayTwo.getJSONObject(j);
+					
+					
+					if (os.objectOne.has("_id") && os.objectTwo.has("CVE")) {
+						String idOne = os.objectOne.getString("_id");					
+						String idTwo = os.objectTwo.getString("CVE");					
+						if (os.objectOne.has("description") && os.objectTwo.has("description")) {
+							os.descriptionSimilarity = compareDescription(idOne, idTwo);	 //sending index of corresponding objects to compare
+						}
+						else os.descriptionSimilarity = 0.0;
+					}
+					if (os.objectOne.has("vulnerableSoftware") && os.objectTwo.has("Vulnerable"))	{
+						os.softwareSimilarity = compareSoftware (os.objectOne.get("vulnerableSoftware"), os.objectTwo.get("Vulnerable"));
+					}
+					else os.softwareSimilarity = 0.0;
+					os.idAndClassSimilarity = 0.0;	//compareIdAndClass(i, j);
 				
-				addToMatchTree(matchTree, os);	
+					if (os.objectOne.has("publishedDate") && os.objectTwo.has("publishedDate"))	{
+						os.publTimeSimilarity = compareDate (os.objectOne.get("publishedDate"), os.objectTwo.get("publishedDate"));	
+					}
+					else os.publTimeSimilarity = 0.0;
+
+					if (os.objectOne.has("modifiedDate") && os.objectTwo.has("modifiedDate"))	{
+						os.modifTimeSimilarity = compareDate (os.objectOne.get("modifiedDate"), os.objectTwo.get("modifiedDate"));
+					}
+					else os.modifTimeSimilarity = 0.0;
+			
+					if (os.objectOne.has("references") && os.objectTwo.has("references"))	{
+						os.referenceSimilarity = compareReferences (os.objectOne.get("references"), os.objectTwo.get("references"));
+					}
+					else os.referenceSimilarity = 0.0;
+			
+					addToMatchTree(matchTree, os);	
+				}
 			}
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 	}
+							
+	void setWhirlMapsForDescriptions() throws JSONException {
 	
-	void setWhirlMapsForDescriptions()	{
-	
-		Map<Integer, String> textFieldOne = new HashMap<Integer, String>(); 	
-		Map<Integer, String> textFieldTwo = new HashMap<Integer, String>(); 	
+		Map<String, String> textFieldOne = new HashMap<String, String>(); 	
+		Map<String, String> textFieldTwo = new HashMap<String, String>(); 	
 		
-		for (int i = 0; i < arrayOne.size(); i++)	{
-			if (((JSONObject)arrayOne.get(i)).get("description") != null)
-			textFieldOne.put(i, ((JSONObject)arrayOne.get(i)).get("description").toString());
+		for (int i = 0; i < arrayOne.length(); i++)	{
+			if ((arrayOne.getJSONObject(i)).get("description") != null)
+			textFieldOne.put(arrayOne.getJSONObject(i).getString("_id"), (arrayOne.getJSONObject(i)).getString("description"));
 		}
-		for (int i = 0; i < arrayTwo.size(); i++)	{
-			if (((JSONObject)arrayTwo.get(i)).get("description") != null)
-			textFieldTwo.put(i, ((JSONObject)arrayTwo.get(i)).get("description").toString());
+		for (int i = 0; i < arrayTwo.length(); i++)	{
+			if ((arrayTwo.getJSONObject(i)).get("description") != null)
+			textFieldTwo.put(arrayTwo.getJSONObject(i).getString("CVE"), (arrayTwo.getJSONObject(i)).getString("description"));
 			
 		}
 		whirlForDescription.setTextMaps(textFieldOne, textFieldTwo);
@@ -66,7 +91,7 @@ public class CompareWithWHIRL extends Comparison implements ComparisonMethod {
 
 	public double compareDescription (Object i, Object j)	{
 									
-		return	whirlForDescription.getSimilarityScore(new Integer (i.toString()), new Integer (j.toString()));	 //sending index of corresponding objects to compare
+		return	whirlForDescription.getSimilarityScore(i.toString(), j.toString());	 //sending index of corresponding objects to compare
 	}
 
 	public TreeMap<Double, ArrayList<ObjectsSimilarity>> getMatchTree()	{

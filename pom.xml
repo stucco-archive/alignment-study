@@ -21,11 +21,16 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.googlecode.json-simple</groupId>
-      <artifactId>json-simple</artifactId>
-      <version>1.1</version>
-    </dependency>
+	<dependency>
+                  <groupId>org.json</groupId>
+                  <artifactId>json</artifactId>
+                  <version>20140107</version>
+        </dependency>
+	<dependency>
+      		<groupId>com.googlecode.json-simple</groupId>
+      		<artifactId>json-simple</artifactId>
+      		<version>1.1</version>
+    	</dependency>
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
@@ -44,6 +49,16 @@
     </dependency>
   </dependencies>
   <build>
+    <resources>
+      <resource>
+	<directory>resources</directory>
+	<includes>
+	   <include>StopWords.txt</include>
+	   <include>NVD.json</include>
+	   <include>bugtraq.json</include>
+	</includes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>  
         <groupId>org.codehaus.mojo</groupId>  

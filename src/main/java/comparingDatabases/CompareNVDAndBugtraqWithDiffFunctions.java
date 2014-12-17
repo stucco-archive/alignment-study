@@ -12,17 +12,12 @@ import java.io.IOException;
 import java.util.*;
 import java.io.*;
 				
-import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-			
+import org.json.*;
+		
 public class CompareNVDAndBugtraqWithDiffFunctions	{
 	
 	private FileReader readerOne;
 	private FileReader readerTwo;
-	private JSONParser parserOne;
-	private JSONParser parserTwo;
 	private JSONArray arrayOne;
 	private JSONArray arrayTwo;
 	private TreeMap<Double, ArrayList<ObjectsSimilarity>> matchTree;
@@ -32,25 +27,32 @@ public class CompareNVDAndBugtraqWithDiffFunctions	{
 	private ROC roc;
 
 	public CompareNVDAndBugtraqWithDiffFunctions(String[] args)	{
+									
+		try {							
+			String line = new String();
+			String text1 = new String();
+			String text2 = new String();														
 
-		try {
-			readerOne = new FileReader (args[0]);
-			readerTwo = new FileReader (args[1]);
-			parserOne = new JSONParser ();
-			parserTwo = new JSONParser ();
-			arrayOne = (JSONArray)parserOne.parse(readerOne); //JSON array from NVD database
-			arrayTwo = (JSONArray)parserTwo.parse(readerTwo); //JSON array from bugtraq database
-			entropyOne = new EntropyCalculation(args[0]);
-			entropyTwo = new EntropyCalculation(args[1]);
+			InputStream i1 = CompareNVDAndBugtraqWithDiffFunctions.class.getClassLoader().getResourceAsStream(args[0]);
+			BufferedReader br1 = new BufferedReader(new InputStreamReader(i1));
+			while ((line = br1.readLine()) != null)
+				text1 = text1 + line;
+			
+			InputStream i2 = CompareNVDAndBugtraqWithDiffFunctions.class.getClassLoader().getResourceAsStream(args[1]);
+			BufferedReader br2 = new BufferedReader(new InputStreamReader(i2));
+			while ((line = br2.readLine()) != null)
+				text2 = text2 + line;
+				
+			arrayOne = new JSONArray(text1);
+			arrayTwo = new JSONArray(text2);
+			
+			entropyOne = new EntropyCalculation(arrayOne);
+			entropyTwo = new EntropyCalculation(arrayTwo);
+
 			ROCChart chart = new ROCChart("ROC");
 			matchTree = new TreeMap<Double, ArrayList<ObjectsSimilarity>>();
 			duration = new HashMap<String, Long>();	
 													
-			JSONObject obj =  new JSONObject();
-			obj = (JSONObject) entropyTwo.getEntropy();					
-				for (Object s : obj.keySet())					
-					System.out.println(s.toString() + " + " + obj.get(s.toString()));		
-	
 			long start;
 			double openPenalty = 1.0, extendPenalty = 0.7;	//parameters for Affine Gap
 			int qNumber = 2;	//paremeter for QGrams algorith
@@ -87,8 +89,11 @@ public class CompareNVDAndBugtraqWithDiffFunctions	{
 		
 			for (ComparisonMethod method : methods)	{
 				matchTree = method.getMatchTree();
+				method.printMatchTree(matchTree,  40, "outputFile.txt");
 				roc = new ROC (matchTree, entropyOne.getEntropy(), entropyTwo.getEntropy(), method.getName());
+				System.out.println(roc.getChartData());
 				chart.addNewChart(method.getName(), roc.getChartData());
+			//	chart.drawChart(); 
 			}
 
 			chart.drawChart();
@@ -96,17 +101,15 @@ public class CompareNVDAndBugtraqWithDiffFunctions	{
 			for (String key : duration.keySet())
 				System.out.println(key + " duration = " + duration.get(key)); 
 			
-		} catch (FileNotFoundException e)	{
-			e.printStackTrace();
-		} catch (IOException e)		{
-			e.printStackTrace();
-		} catch (ParseException e)	{
+		} catch (IOException e)	{
+			e.printStackTrace();		
+		} catch (JSONException e)	{
 			e.printStackTrace();
 		}		
 	}
 			
-	public static void main (String[] args)	{
+//	public static void main (String[] args)	{
 		
-		new CompareNVDAndBugtraqWithDiffFunctions (args);
-	}	
+//		new CompareNVDAndBugtraqWithDiffFunctions (args);
+//	}	
 }

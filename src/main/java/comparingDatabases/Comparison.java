@@ -8,8 +8,7 @@ import java.io.BufferedWriter;
 import java.util.*;
 import java.net.*;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
+import org.json.*;
 
 import net.sf.json.JSONSerializer;
 import net.sf.json.JSON;
@@ -22,7 +21,7 @@ public class Comparison {
 	public Comparison()	{
 
 		df = new DateFormat();
-		rsw = new RemoveStopWords("resources/StopWords.txt");
+		rsw = new RemoveStopWords("StopWords.txt");
 	}
 
 	//returns 0.0 if time is not specifyed in both objects
@@ -38,69 +37,73 @@ public class Comparison {
 		if (timeOne == timeTwo) return 1.0;
 		else	return 1.0/(double)Math.abs(timeOne - timeTwo);
 	}
-											
+																								
 	//return is between 0.0 (nothing in common) and 1.0				
-	public double compareReferences (Object referenceListOne, Object referenceListTwo)	{
+	public double compareReferences (Object referenceListOne, Object referenceListTwo){
 				
 		if (referenceListOne == null | referenceListTwo == null)	return 0.0;
-		
+			
 		int match = 0, total = 0;
-												
-		JSONArray a1 = (JSONArray) referenceListOne;
-		JSONArray a2 = (JSONArray) referenceListTwo;
-	
-	//	ArrayList a1 = (ArrayList) referenceListOne;
-	//	ArrayList a2 = (ArrayList) referenceListTwo;
+		
+		try {
+													
+			JSONArray a1 = (JSONArray) referenceListOne;
+			JSONArray a2 = (JSONArray) referenceListTwo;
 
-		total = a1.size() + a2.size();
+			total = a1.length() + a2.length();
 
-		for (int i = 0; i < a1.size(); i ++)	{
-			for (int j = 0; j < a2.size(); j++)	{
-				if (a1.get(i).toString().equals(a2.get(j).toString()))	{
-					match++;
-					total--;
+			for (int i = 0; i < a1.length(); i ++)	{
+				for (int j = 0; j < a2.length(); j++)	{
+					System.out.println(a1.get(i).toString() + " " + a2.get(j).toString());
+					if (a1.get(i).toString().equals(a2.get(j).toString()))	{
+						match++;
+						total--;
+					}
 				}
 			}
+			
+			return (double)(match)/(double)total;
+		
+		} catch (JSONException e)	{
+			e.printStackTrace();
 		}
-
-		return (double)(match)/(double)total;
+		finally	{
+			return 0.0;
+		}
 	}
+															
+	public double compareSoftware (Object softwareListOne, Object softwareListTwo) {	
 
-	public double compareSoftware (Object softwareListOne, Object softwareListTwo)	{	
-						
-		if (softwareListOne == null | softwareListTwo == null) return 0.0;
-	
-		SmithWaterman sw = new SmithWaterman();
-												
-		return sw.smithWatermanScore(softwareListOne.toString(), softwareListTwo.toString());
-	}
-
-						
-	public double compareSoftwareExactly (Object softwareListOne, Object softwareListTwo)	{	
-
-		if (softwareListOne == null | softwareListTwo == null)	return 0.0;
-		int match = 0, total;
+		try {
+			if (softwareListOne == null | softwareListTwo == null)	return 0.0;
+			int match = 0, total;
 		
-		JSONArray a1 = (JSONArray) softwareListOne;
-		JSONArray a2 = (JSONArray) softwareListTwo;
-		String s1;
-		String s2;
-		String[] array1;
-		String[] array2;
-		total = a1.size() + a2.size();
-
-		for (int i = 0; i < a1.size(); i++)	{
-			s1 = a1.get(i).toString();
-			for (int j = 0; j < a2.size(); j++)	{
-				s2 = a2.get(j).toString();
-				if (compareSoftwareHelper(s1, s2))	{
-					match++;
-					total--;
+			JSONArray a1 = (JSONArray) softwareListOne;
+			JSONArray a2 = (JSONArray) softwareListTwo;
+			String s1;
+			String s2;
+			String[] array1;
+			String[] array2;
+			total = a1.length() + a2.length();
+	
+			for (int i = 0; i < a1.length(); i++)	{
+				s1 = a1.get(i).toString();
+				for (int j = 0; j < a2.length(); j++)	{
+					s2 = a2.get(j).toString();
+					if (compareSoftwareHelper(s1, s2))	{
+						match++;
+						total--;
+					}
 				}
 			}
+			return (double)match/(double)total;
+		} catch (JSONException e)	{
+			e.printStackTrace();
 		}		
+		finally	{
+			return 0.0;
+		}
 		
-		return (double)match/(double)total;
 	}
 		
 	boolean compareSoftwareHelper	(String s1, String s2)	{

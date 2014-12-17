@@ -3,7 +3,7 @@ package alignmentStudy;
 import java.io.*;
 import java.util.*;
 
-import org.json.simple.JSONObject;
+import org.json.*;
 
 public class ROC {
 
@@ -25,13 +25,17 @@ public class ROC {
 		this.entropyTwo = entropyTwo;
 		this.matchTree = matchTree;
 		
-		calculateEntropyAverage();
-		calculateMaxKey();
-		setThreshold();								
-		calculateArea();
+		try {
+			calculateEntropyAverage();
+			calculateMaxKey();
+			setThreshold();								
+			calculateArea();
+		} catch (JSONException e)	{
+			e.printStackTrace();
+		}
 	}
 
-	void calculateEntropyAverage()	{
+	void calculateEntropyAverage()	throws JSONException {
 
 		try {
 			entropyAverage.put("description", (new Double (entropyOne.get("description").toString()) + 
@@ -49,17 +53,19 @@ public class ROC {
 		}
 	}
 
-	void calculateEntropyTotal()	{
+	void calculateEntropyTotal() throws JSONException {
 		
 		entropyTotal = 0.0;
 
-		for (Object key : entropyAverage.keySet())	{
+		Iterator it = entropyAverage.keys();						
+		while (it.hasNext())	{
+			String key = (String) it.next();
 			entropyTotal = entropyTotal + new Double (entropyAverage.get(key).toString());	
 		}
 
 	}
 
-	void calculateMaxKey()	{
+	void calculateMaxKey() throws JSONException {
 		
 		maxKey = 0;
 	
@@ -77,7 +83,7 @@ public class ROC {
 		}
 	}
 
-	void setThreshold()	{
+	void setThreshold() throws JSONException	{
 							
 		for (double i = 0.0; i <= maxKey; i = i + 0.1)	{
 			threshold = i;
@@ -86,7 +92,7 @@ public class ROC {
 		}
 	}
 
-	void calculateROC()	{
+	void calculateROC() throws JSONException {
 		
 		truePositive = 0;
 		falsePositive = 0;
@@ -102,11 +108,12 @@ public class ROC {
 														
 		chartData.add(new Point(((double)falsePositive/(double)(falsePositive + lessFalsePositive)),
 					(double)truePositive/(double)(truePositive + lessTruePositive)));  
-			
+		System.out.println("turePositive = " + truePositive);
+		System.out.println("falsePositive = " + falsePositive);
 		addTrueFalseMap (truePositive, falsePositive);
 	}
 
-	void calculateChartData(ObjectsSimilarity os)	{
+	void calculateChartData(ObjectsSimilarity os) throws JSONException {
 
 		double similarityTotal = 0.0;
 		similarityTotal = similarityTotal + os.descriptionSimilarity * new Double (entropyAverage.get("description").toString());
@@ -115,32 +122,42 @@ public class ROC {
 		similarityTotal = similarityTotal + os.referenceSimilarity * new Double (entropyAverage.get("references").toString());
 		similarityTotal = similarityTotal + os.softwareSimilarity * new Double (entropyAverage.get("vulnerableSoftware").toString());
 		if (similarityTotal >= threshold)	{
-			if (os.objectTwo.get("CVE").toString().length() > 13)	{
-				boolean positive = false;
-				for (int i = 0; i <= os.objectTwo.get("CVE").toString().length() - 13; i = i + 13)	{
-					if (os.objectTwo.get("CVE").toString().substring(i,i + 13).equals(os.objectOne.get("_id")))	{
-						positive = true; 
-						truePositive++;
+			if (os.objectTwo.has("CVE") && os.objectOne.has("_id"))	{
+				if (os.objectTwo.get("CVE").toString().length() > 13)	{
+					boolean positive = false;
+					for (int i = 0; i <= os.objectTwo.get("CVE").toString().length() - 13; i = i + 13)	{
+						if (os.objectTwo.get("CVE").toString().substring(i,i + 13).equals(os.objectOne.get("_id")))	{
+							positive = true; 
+							truePositive++;
+						}
 					}
+					if (!positive) falsePositive++;
 				}
-				if (!positive) falsePositive++;
+				else {									
+					if (os.objectOne.get("_id").equals(os.objectTwo.get("CVE")))	
+						truePositive++;
+				}
 			}
-			else if (os.objectOne.get("_id").equals(os.objectTwo.get("CVE")))	truePositive++;
 			else	falsePositive++;		
 			
 		}
-		else {
-			if (os.objectTwo.get("CVE").toString().length() > 13)	{
-				boolean positive = false;
-				for (int i = 0; i <= os.objectTwo.get("CVE").toString().length() - 13; i = i + 13)	{
-					if (os.objectTwo.get("CVE").toString().substring(i,i + 13).equals(os.objectTwo.get("_id")))	{
-						positive = true; 
-						lessTruePositive++;
+		else {									
+			if (os.objectTwo.has("CVE") && os.objectOne.has("_id"))	{
+				if (os.objectTwo.get("CVE").toString().length() > 13)	{
+					boolean positive = false;
+					for (int i = 0; i <= os.objectTwo.get("CVE").toString().length() - 13; i = i + 13)	{
+						if (os.objectTwo.get("CVE").toString().substring(i,i + 13).equals(os.objectOne.get("_id")))	{
+							positive = true; 
+							lessTruePositive++;
+						}
 					}
+					if (!positive) lessFalsePositive++;
 				}
-				if (!positive) lessFalsePositive++;
+				else	{
+					if (os.objectOne.get("_id").equals(os.objectTwo.get("CVE")))	
+						lessTruePositive++;
+				}
 			}
-			else if (os.objectOne.get("_id").equals(os.objectTwo.get("CVE")))	lessTruePositive++;
 			else	lessFalsePositive++;		
 		}
 	}

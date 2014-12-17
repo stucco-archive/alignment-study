@@ -7,8 +7,7 @@ package alignmentStudy;
 //descriptions are compared with Smith Waterman algorithm
 import java.util.*;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
+import org.json.*;
 					
 public class CompareWithSmithWaterman extends Comparison implements ComparisonMethod {
 	
@@ -28,21 +27,45 @@ public class CompareWithSmithWaterman extends Comparison implements ComparisonMe
 
 	//function traversing arrays and comparing corresponding elements
 	public void compareDatabases()	{
-		
-		for (int i = 0; i < arrayOne.size(); i++)	{
-			for (int j = 0; j < arrayTwo.size(); j++)	{
-				ObjectsSimilarity os = new ObjectsSimilarity();
-				os.objectOne = (JSONObject) arrayOne.get(i);
-				os.objectTwo = (JSONObject) arrayTwo.get(j);
-																						
-				os.descriptionSimilarity = compareDescription (os.objectOne.get("description"), os.objectTwo.get("description"));
-				os.publTimeSimilarity = compareDate (os.objectOne.get("publishedDate"), os.objectTwo.get("publishedDate"));	
-				os.modifTimeSimilarity = compareDate (os.objectOne.get("modifiedDate"), os.objectTwo.get("modifiedDate"));
-				os.referenceSimilarity = compareReferences (os.objectOne.get("references"), os.objectTwo.get("references"));
-				os.softwareSimilarity = compareSoftware (os.objectOne.get("vulnerableSoftware"), os.objectTwo.get("Vulnerable"));
-										
-				addToMatchTree(matchTree, os);
+	
+		try {
+			for (int i = 0; i < arrayOne.length(); i++)	{
+				for (int j = 0; j < arrayTwo.length(); j++)	{
+					ObjectsSimilarity os = new ObjectsSimilarity();
+					os.objectOne = arrayOne.getJSONObject(i);
+					os.objectTwo = arrayTwo.getJSONObject(j);
+															
+					if (os.objectOne.has("description") && os.objectTwo.has("description"))	{
+						os.descriptionSimilarity = compareDescription(os.objectOne.get("description"), os.objectTwo.get("description"));	 //sending index of corresponding objects to compare
+					}
+					else os.descriptionSimilarity = 0.0;
+
+					if (os.objectOne.has("vulnerableSoftware") && os.objectTwo.has("Vulnerable"))	{
+						os.softwareSimilarity = compareSoftware (os.objectOne.get("vulnerableSoftware"), os.objectTwo.get("Vulnerable"));
+					}
+					else os.softwareSimilarity = 0.0;
+					os.idAndClassSimilarity = 0.0;	//compareIdAndClass(i, j);
+				
+					if (os.objectOne.has("publishedDate") && os.objectTwo.has("publishedDate"))	{
+						os.publTimeSimilarity = compareDate (os.objectOne.get("publishedDate"), os.objectTwo.get("publishedDate"));	
+					}
+					else os.publTimeSimilarity = 0.0;
+
+					if (os.objectOne.has("modifiedDate") && os.objectTwo.has("modifiedDate"))	{
+						os.modifTimeSimilarity = compareDate (os.objectOne.get("modifiedDate"), os.objectTwo.get("modifiedDate"));
+					}
+					else os.modifTimeSimilarity = 0.0;
+			
+					if (os.objectOne.has("references") && os.objectTwo.has("references"))	{
+						os.referenceSimilarity = compareReferences (os.objectOne.get("references"), os.objectTwo.get("references"));
+					}
+					else os.referenceSimilarity = 0.0;
+
+					addToMatchTree(matchTree, os);	
+				}
 			}
+		} catch (JSONException e)	{
+			e.printStackTrace();
 		}
 	}
 	

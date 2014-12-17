@@ -30,8 +30,14 @@ public class TimeTest extends TestCase	{
 	 * Test stub
 	 */
 	public void testOne()
-	{
-		RemoveStopWords rsw = new RemoveStopWords("resources/StopWords.txt");
+	{									
+		RemoveStopWords rsw = new RemoveStopWords("StopWords.txt");
 		assertEquals(rsw.containsString("a"), true);
+	}
+
+	public void testTwo()	{
+						
+		String[] args = {"NVD.json", "bugtraq.json"};
+		new CompareNVDAndBugtraqWithDiffFunctions(args);
 	}
 }

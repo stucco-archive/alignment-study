@@ -8,10 +8,7 @@ import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.util.*;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.*;
 
 import net.sf.json.JSONSerializer;
 import net.sf.json.JSON;
@@ -23,7 +20,6 @@ public class EntropyCalculation {
 	private BufferedWriter bw;
 	private FileReader reader;
 	private FileWriter writer;
-	private JSONParser parser;
 	private JSONObject object;
 	private JSONArray array;
 	private JSONSerializer jsonSerializer;
@@ -38,46 +34,35 @@ public class EntropyCalculation {
 	private double entropy;
 	private int countKey, nullCount, arraySize;
 
-	public EntropyCalculation (String file)	{
+	public EntropyCalculation (JSONArray inputArray)	{
 		
-		try {
-			reader = new FileReader (file);
-			writer = new FileWriter("entropy.json", true);
-			bw = new BufferedWriter(writer);
+		this.array = inputArray;
+		objectsMap = new HashMap<String, Map<Object, Integer>>();
+		countFields = new HashMap<String, Integer>();
+		entropyMap = new HashMap<String, Double>();		
+		entropyObject = new JSONObject();	
+		arraySize = array.length();
 
-			parser = new JSONParser ();
-			object = new JSONObject ();
-			entropyObject = new JSONObject();	
-			array = (JSONArray)parser.parse(reader); //JSON array from NVD database
-			objectsMap = new HashMap<String, Map<Object, Integer>>();
-			countFields = new HashMap<String, Integer>();
-			entropyMap = new HashMap<String, Double>();
-			jsonSerializer = new JSONSerializer();
-			arraySize = array.size();
-			database = file;
-
-			traceArrayAndAddToMap();
-			calculateEntropy();
-			createEntropyJSONObject();
-			bw.write(json.toString(2));
-		//	printEntropy();
-
-			bw.close();
-		} catch (FileNotFoundException e)	{
-			e.printStackTrace();
-		} catch (IOException e)		{
-			e.printStackTrace();
-		} catch (ParseException e)	{
-			e.printStackTrace();
-		}	
+		traceArrayAndAddToMap();
+		calculateEntropy();
+		createEntropyJSONObject();
+	//	printEntropy();
 	}	
 	
 	void traceArrayAndAddToMap()	{
 		
-		for (int i = 0; i < arraySize ; i++)	{
-			object = (JSONObject) array.get(i);
-			for (Object key : object.keySet())
-				addToMap (key.toString(), object.get(key.toString()));
+		try {
+			for (int i = 0; i < arraySize ; i++)	{
+				object = array.getJSONObject(i);
+				Iterator iter = object.keys();
+				while (iter.hasNext())	{
+					String key = (String) iter.next();
+					Object value = object.get(key);
+					addToMap (key, value);
+				}	
+			}
+		} catch(JSONException e)	{
+			e.printStackTrace();
 		}
 	}
 
@@ -131,14 +116,13 @@ public class EntropyCalculation {
 
 	void createEntropyJSONObject()	{
 		
-	
-	//	entropyObject.put("database", database);
-		for (String key : entropyMap.keySet())	{
-			entropyObject.put(key, entropyMap.get(key));
+		try {	
+			for (String key : entropyMap.keySet())	{
+				entropyObject.put(key, entropyMap.get(key));
+			}
+		} catch(JSONException e)	{
+			e.printStackTrace();
 		}
-	
-		json = jsonSerializer.toJSON (entropyObject.toString());
-			
 	}
 
 	JSONObject getEntropy ()	{

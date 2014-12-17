@@ -1,36 +1,31 @@
 package alignmentStudy;
-
 //in constructor function takes a file with stop words
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class RemoveStopWords {
 
-	private BufferedReader br;
 	private Set<String> hm;
 
-	public RemoveStopWords(String file)	{
+	public RemoveStopWords(String STOP_WORDS_FILE)	{
 		
-		try	{
-			br = new BufferedReader (new FileReader (file));	
-			String str = new String();
+		try {
 			hm = new HashSet<String>();
-
-			while ((str = br.readLine()) != null)	{
+			InputStream i = RemoveStopWords.class.getClassLoader().getResourceAsStream(STOP_WORDS_FILE);
+			BufferedReader r = new BufferedReader(new InputStreamReader(i));
+			
+			String str;
+			while((str = r.readLine()) != null)	{
 				hm.add(str);
 			}
-			
-		} catch (FileNotFoundException e)	{
-			e.printStackTrace();
-		} catch (IOException e)	{
+			i.close();
+		}
+		catch(Exception e)	{
 			e.printStackTrace();
 		}
 	}
-
+	
 	boolean containsString (String str)	{	
 		return hm.contains(str);
 	}

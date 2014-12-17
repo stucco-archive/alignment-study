@@ -1,6 +1,6 @@
 package alignmentStudy;
 
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 
 public class ObjectsSimilarity {
 

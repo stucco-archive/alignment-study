@@ -1,25 +1,65 @@
 package alignmentStudy;
 
 import java.util.*;
+import java.io.*;
 
 public class WHIRL extends Comparison {
 
-	private Map<Integer, String> textOne;
-        private Map<Integer, String> textTwo;
-	private Map<Integer, Map<String, Integer>>  mapOne; 	//size of JSON array
-	private Map<Integer, Map<String, Integer>>  mapTwo; 	//size of JSON array
+	private Map<String, String> textOne;
+        private Map<String, String> textTwo;
+	private Map<String, Map<String, Integer>>  mapOne; 	//size of JSON array
+	private Map<String, Map<String, Integer>>  mapTwo; 	//size of JSON array
 	private Map<String, Integer> allWords;
 	private PorterStemmer ps;
+	private String WHIRL_CONFIG_FILE = "WHIRLConfigFile.txt";	
 
 	public WHIRL()	{
 		
-		mapOne = new HashMap<Integer, Map<String, Integer>>(); 	
-		mapTwo = new HashMap<Integer, Map<String, Integer>>(); 	
+		mapOne = new HashMap<String, Map<String, Integer>>(); 	
+		mapTwo = new HashMap<String, Map<String, Integer>>(); 	
 		allWords = new HashMap<String, Integer>();				
 		ps = new PorterStemmer();
 	}
 
-	public void setTextMaps (Map<Integer, String> textOne, Map<Integer, String> textTwo)	{
+	void loadConfig()	{
+	
+		try	{
+			InputStream i = WHIRL.class.getClassLoader().getResourceAsStream(WHIRL_CONFIG_FILE);
+			BufferedReader br = new BufferedReader (new InputStreamReader (i));	
+			String str = new String();
+			
+			while ((str = br.readLine()) != null)	{
+				String[] line = str.split(" ");
+				allWords.put(line[0], Integer.parseInt(line[1]));
+			}
+			i.close();
+			br.close();
+		} catch (FileNotFoundException e)	{
+			e.printStackTrace();
+		} catch (IOException e)	{
+			e.printStackTrace();
+		}
+	}
+
+	//updating config file
+	void close()	{
+		
+		try	{
+			BufferedWriter bw = new BufferedWriter (new FileWriter(WHIRL_CONFIG_FILE));	
+					
+			for (String key: allWords.keySet())	{
+				bw.write(key + " " + allWords.get(key)); 
+			}
+
+			bw.close();
+		} catch (FileNotFoundException e)	{
+			e.printStackTrace();
+		} catch (IOException e)	{
+			e.printStackTrace();
+		}	
+	}
+
+	public void setTextMaps (Map<String, String> textOne, Map<String, String> textTwo)	{
 			
 		this.textOne = textOne;                          
  	        this.textTwo = textTwo; 
@@ -31,7 +71,7 @@ public class WHIRL extends Comparison {
 	//creating map for cosine similarity and tf-idf
 	void storeArrayOneIntoMaps()	{
 						
-		for (int key : textOne.keySet())	{
+		for (String key : textOne.keySet())	{
 			Map <String, Integer> map = new HashMap<String, Integer>();
                         stemObjectAndAddToAllWordsMap (textOne.get(key), map);
 			mapOne.put(key, map);					
@@ -40,13 +80,13 @@ public class WHIRL extends Comparison {
 
 	//creating map for cosine similarity and tf-idf
 	void storeArrayTwoIntoMaps()	{
-		for (int key : textTwo.keySet())	{
+		for (String key : textTwo.keySet())	{
 			Map <String, Integer> map = new HashMap<String, Integer>();
                         stemObjectAndAddToAllWordsMap (textTwo.get(key), map);
 			mapTwo.put(key, map);									
 		}
 	}
-
+							
 	//removing suffixes from all words 
 	void  stemObjectAndAddToAllWordsMap (String s, Map<String, Integer> map)	{
 
@@ -79,7 +119,7 @@ public class WHIRL extends Comparison {
 
 
 	//compares descriptions using WHIRL or cosine similarity
-	public double getSimilarityScore (int i, int j)	{
+	public double getSimilarityScore (String i, String j)	{
 
 		if (mapOne.get(i) == null | mapTwo.get(j) == null)	return 0.0;
 
